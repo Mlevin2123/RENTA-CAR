@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renta Car Martínez — El Salvador's Premier Vehicle Rental</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#004A99",
+            "primary-dark": "#003370",
+            danger: "#D32F2F",
+            "danger-dark": "#b71c1c",
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <style>
+    * { scroll-behavior: smooth; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f6f8; }
+
+    /* TOP BAR */
+    .topbar-text { animation: mb 28s linear infinite; white-space: nowrap; display: inline-block; }
+    @keyframes mb { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+
+    /* NAVBAR */
+    #navbar { transition: box-shadow .3s; }
+    #navbar.scrolled { box-shadow: 0 2px 16px rgba(0,74,153,.15); }
+    .nav-link { position:relative; color:#333; font-weight:500; font-size:.9rem; transition:color .2s; }
+    .nav-link::after { content:''; position:absolute; left:0; bottom:-4px; width:0; height:2px; background:#004A99; transition:width .25s; }
+    .nav-link:hover { color:#004A99; }
+    .nav-link:hover::after { width:100%; }
+
+    /* CARDS */
+    .car-card { transition: transform .3s, box-shadow .3s; }
+    .car-card:hover { transform:translateY(-6px); box-shadow:0 12px 32px rgba(0,74,153,.15); }
+
+    /* FORM INPUTS */
+    .input-field {
+      width:100%; padding:.55rem .9rem; border:1px solid #ccd6e0;
+      border-radius:.45rem; font-size:.875rem; background:#fff;
+      transition:border-color .2s, box-shadow .2s; outline:none;
+    }
+    .input-field:focus { border-color:#004A99; box-shadow:0 0 0 3px rgba(0,74,153,.12); }
+    .input-field.error { border-color:#D32F2F; box-shadow:0 0 0 3px rgba(211,47,47,.1); }
+    .field-error { color:#D32F2F; font-size:.75rem; margin-top:.2rem; display:none; }
+
+    /* MOBILE MENU */
+    #mobile-menu { transition:max-height .35s, opacity .35s; max-height:0; overflow:hidden; opacity:0; }
+    #mobile-menu.open { max-height:400px; opacity:1; }
+
+    /* TOAST */
+    #toast {
+      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(40px);
+      background:#1e293b; color:#fff; padding:.85rem 2rem; border-radius:999px;
+      font-size:.875rem; font-weight:600; opacity:0; transition:all .4s; z-index:9999;
+      white-space:nowrap; pointer-events:none;
+    }
+    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* FADE */
+    .fade-in { opacity:0; transform:translateY(24px); transition:opacity .6s, transform .6s; }
+    .fade-in.visible { opacity:1; transform:translateY(0); }
+
+    /* BADGES */
+    .price-badge { background:#D32F2F; color:#fff; font-weight:700; font-size:.85rem; padding:.25rem .75rem; border-radius:999px; }
+
+    /* SPINNER */
+    .spinner { width:20px; height:20px; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* DIVIDER */
+    .section-divider { width:60px; height:4px; background:#004A99; border-radius:999px; margin:.75rem auto 2rem; }
+
+    /* FILTER TABS */
+    .filter-tab { padding:.4rem 1.1rem; border-radius:999px; font-size:.8rem; font-weight:700; border:1.5px solid #d1d5db; background:white; color:#6b7280; cursor:pointer; transition:all .2s; text-transform:uppercase; letter-spacing:.05em; }
+    .filter-tab:hover { border-color:#004A99; color:#004A99; }
+    .filter-tab.active-tab { background:#004A99; color:white; border-color:#004A99; }
+
+    /* ADMIN BUTTON NAVBAR */
+    .admin-nav-btn {
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding:.4rem .85rem; border-radius:.5rem;
+      background:#f1f5f9; border:1.5px solid #e2e8f0;
+      color:#475569; font-size:.78rem; font-weight:700;
+      cursor:pointer; transition:all .2s; letter-spacing:.03em;
+    }
+    .admin-nav-btn:hover { background:#004A99; border-color:#004A99; color:#fff; }
+
+    /* ══ ADMIN PANEL ══ */
+    #admin-overlay {
+      display:none; position:fixed; inset:0; z-index:1000;
+      background:#0f172a; overflow-y:auto;
+    }
+    #admin-overlay.open { display:block; }
+
+    /* LOGIN SCREEN */
+    #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    #admin-panel { display:none; }
+    #admin-panel.open { display:block; }
+
+    /* ADMIN NAV */
+    .admin-nav-link {
+      display:flex; align-items:center; gap:.75rem;
+      padding:.65rem 1rem; border-radius:.75rem; color:#94a3b8; font-size:.875rem; font-weight:500;
+      cursor:pointer; transition:all .2s;
+    }
+    .admin-nav-link:hover { background:rgba(255,255,255,.05); color:#fff; }
+    .admin-nav-link.active { background:rgba(0,74,153,.25); color:#60a5fa; }
+
+    /* ADMIN TABLE */
+    .admin-table { width:100%; border-collapse:collapse; }
+    .admin-table th { background:#1e293b; color:#94a3b8; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:.75rem 1rem; text-align:left; }
+    .admin-table td { padding:.85rem 1rem; border-bottom:1px solid #1e293b; font-size:.875rem; color:#e2e8f0; vertical-align:middle; }
+    .admin-table tr:hover td { background:rgba(255,255,255,.025); }
+
+    /* ADMIN CARDS */
+    .admin-card { background:#1e293b; border:1px solid #334155; border-radius:1rem; padding:1.5rem; }
+
+    /* UPLOAD ZONE */
+    .upload-zone {
+      border:2px dashed #334155; border-radius:.75rem; padding:2rem; text-align:center;
+      cursor:pointer; transition:border-color .2s; background:#0f172a;
+    }
+    .upload-zone:hover { border-color:#004A99; }
+    .upload-zone.dragover { border-color:#60a5fa; background:rgba(0,74,153,.1); }
+
+    /* MODAL */
+    .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:2000; align-items:center; justify-content:center; padding:1rem; }
+    .modal-bg.open { display:flex; }
+    .modal-box { background:#1e293b; border:1px solid #334155; border-radius:1.25rem; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; }
+
+    /* STAT CARDS */
+    .stat-card { background:#1e293b; border:1px solid #334155; border-radius:1rem; padding:1.25rem 1.5rem; }
+
+    /* ADMIN FORM INPUTS */
+    .a-input {
+      width:100%; padding:.6rem .9rem; background:#0f172a; border:1px solid #334155;
+      border-radius:.6rem; color:#e2e8f0; font-size:.875rem; outline:none; transition:border-color .2s;
+    }
+    .a-input:focus { border-color:#004A99; }
+    .a-input option { background:#0f172a; }
+    .a-label { display:block; font-size:.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.35rem; }
+
+    /* TOGGLE */
+    .toggle-wrap { display:flex; align-items:center; gap:.75rem; cursor:pointer; }
+    .toggle { width:44px; height:24px; background:#334155; border-radius:999px; position:relative; transition:background .3s; flex-shrink:0; }
+    .toggle.on { background:#16a34a; }
+    .toggle::after { content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .3s; }
+    .toggle.on::after { transform:translateX(20px); }
+
+    /* BTN STYLES */
+    .btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:#004A99; color:#fff; border:none; border-radius:.6rem; font-size:.85rem; font-weight:700; cursor:pointer; transition:background .2s; }
+    .btn-primary:hover { background:#003370; }
+    .btn-danger { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:#D32F2F; color:#fff; border:none; border-radius:.6rem; font-size:.85rem; font-weight:700; cursor:pointer; transition:background .2s; }
+    .btn-danger:hover { background:#b71c1c; }
+    .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:transparent; color:#94a3b8; border:1px solid #334155; border-radius:.6rem; font-size:.85rem; font-weight:600; cursor:pointer; transition:all .2s; }
+    .btn-ghost:hover { background:#1e293b; color:#e2e8f0; }
+    .btn-green { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:#16a34a; color:#fff; border:none; border-radius:.6rem; font-size:.85rem; font-weight:700; cursor:pointer; transition:background .2s; }
+    .btn-green:hover { background:#15803d; }
+  </style>
+</head>
+<body class="text-gray-800">
+
+<!-- ══════════════════════════════════════
+     TOP BAR
+══════════════════════════════════════ -->
+<div class="bg-[#004A99] text-white text-sm py-2 overflow-hidden">
+  <span class="topbar-text px-8 font-medium tracking-wide">
+    🚗 Renta Car Martínez &nbsp;·&nbsp; El Salvador's Premier Vehicle Rental &nbsp;·&nbsp;
+    Reserva en línea ahora &nbsp;·&nbsp; Flota moderna · Seguro incluido · Atención 24/7 &nbsp;·&nbsp;
+    📞 7890-1234 &nbsp;·&nbsp; ✉ reservas@rentacarmartinez.com &nbsp;&nbsp;&nbsp;
+    🚗 Renta Car Martínez &nbsp;·&nbsp; El Salvador's Premier Vehicle Rental
+  </span>
+</div>
+
+<!-- ══════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════ -->
+<nav id="navbar" class="bg-white sticky top-0 z-50 border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center justify-between h-16">
+
+      <!-- LOGO -->
+      <a href="#" class="flex items-center gap-2 select-none">
+        <div class="w-9 h-9 bg-[#004A99] rounded-lg flex items-center justify-center">
+          <span class="text-white font-black text-sm">RCM</span>
+        </div>
+        <div class="leading-tight">
+          <div class="font-black text-[#004A99] text-base tracking-tight">Martínez</div>
+          <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest -mt-0.5">Rent a Car</div>
+        </div>
+      </a>
+
+      <!-- NAV LINKS (desktop) -->
+      <div class="hidden md:flex items-center gap-7">
+        <a href="#inicio"   class="nav-link">Inicio</a>
+        <a href="#flota"    class="nav-link">Nuestra Flota</a>
+        <a href="#reservar" class="nav-link">Reservaciones</a>
+        <a href="#tarifas"  class="nav-link">Tarifas</a>
+        <a href="#contacto" class="nav-link">Contacto</a>
+      </div>
+
+      <!-- RIGHT SIDE ACTIONS -->
+      <div class="flex items-center gap-2">
+        <!-- ADMIN BUTTON — visible en navbar -->
+        <button onclick="openAdmin()" class="admin-nav-btn hidden sm:inline-flex" title="Panel de Administración">
+          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          <span>Admin</span>
+        </button>
+
+        <a href="tel:+50378901234"
+          class="hidden sm:inline-flex items-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
+          <i data-lucide="phone" class="w-4 h-4"></i> Contáctanos (7890-1234)
+        </a>
+        <button id="hamburger" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
+          <i data-lucide="menu" class="w-5 h-5 text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-4">
+    <div class="py-3 flex flex-col gap-1">
+      <a href="#inicio"   class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Inicio</a>
+      <a href="#flota"    class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Nuestra Flota</a>
+      <a href="#reservar" class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Reservaciones</a>
+      <a href="#tarifas"  class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Tarifas</a>
+      <a href="#contacto" class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Contacto</a>
+      <button onclick="openAdmin();closeMenu()" class="mt-1 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-3 rounded-lg font-bold text-sm transition-colors">
+        <i data-lucide="settings" class="w-4 h-4"></i> Panel Admin
+      </button>
+      <a href="tel:+50378901234" class="mt-1 flex items-center gap-2 bg-[#D32F2F] text-white py-2.5 px-3 rounded-lg font-bold text-sm">
+        <i data-lucide="phone" class="w-4 h-4"></i> Contáctanos
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<section id="inicio" style="background:linear-gradient(to right,rgba(0,0,0,.65) 0%,rgba(0,74,153,.38) 55%,rgba(0,0,0,.5) 100%),url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2940') center/cover no-repeat;min-height:560px;">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 flex flex-col lg:flex-row items-center gap-10 min-h-[560px]">
+    <div class="flex-1 text-white z-10">
+      <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/25 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
+        <i data-lucide="map-pin" class="w-4 h-4 text-yellow-300"></i> El Salvador's Premier Vehicle Rental
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-5 drop-shadow-lg">
+        Alquila el auto<br><span class="text-yellow-300">de tus sueños</span><br>en El Salvador.
+      </h1>
+      <p class="text-lg sm:text-2xl font-bold text-white/90 mb-8">Desde <span class="text-yellow-300">$35</span>/día · Seguro incluido · Entrega a domicilio</p>
+      <div class="flex flex-wrap gap-4">
+        <a href="#flota" class="inline-flex items-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold px-6 py-3 rounded-lg transition-all shadow-lg">
+          <i data-lucide="car" class="w-5 h-5"></i> Ver Flota
+        </a>
+        <a href="#reservar" class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur-sm text-white font-bold px-6 py-3 rounded-lg transition-all">
+          <i data-lucide="calendar" class="w-5 h-5"></i> Reservar Ahora
+        </a>
+      </div>
+      <div class="mt-10 flex flex-wrap gap-6">
+        <div class="flex items-center gap-2 text-white/80 text-sm"><i data-lucide="shield-check" class="w-5 h-5 text-yellow-300"></i> Seguro incluido</div>
+        <div class="flex items-center gap-2 text-white/80 text-sm"><i data-lucide="route" class="w-5 h-5 text-yellow-300"></i> Km ilimitado</div>
+        <div class="flex items-center gap-2 text-white/80 text-sm"><i data-lucide="headphones" class="w-5 h-5 text-yellow-300"></i> Atención 24/7</div>
+      </div>
+    </div>
+
+    <!-- WIDGET RESERVA -->
+    <div id="reservar" class="w-full lg:w-96 bg-[#004A99] rounded-2xl shadow-2xl overflow-hidden z-10">
+      <div class="bg-[#003370] px-6 py-4">
+        <h2 class="text-white font-black text-xl">Reserva tu Vehículo</h2>
+        <p class="text-blue-200 text-sm mt-0.5">Rápido, fácil y seguro</p>
+      </div>
+      <form id="reserve-form" class="px-6 py-5 space-y-4 bg-white" novalidate>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ciudad / Oficina</label>
+          <select id="r-ciudad" class="input-field">
+            <option value="">Selecciona ciudad…</option>
+            <option>San Salvador</option><option>Usulután</option>
+            <option>Santa Ana</option><option>San Miguel</option>
+          </select>
+          <p class="field-error" id="err-ciudad">Selecciona una ciudad.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Fecha Recogida</label>
+            <input type="date" id="r-fecha-in" class="input-field" />
+            <p class="field-error" id="err-fecha-in">Requerido.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Hora</label>
+            <input type="time" id="r-hora-in" class="input-field" value="08:00" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Fecha Devolución</label>
+            <input type="date" id="r-fecha-out" class="input-field" />
+            <p class="field-error" id="err-fecha-out">Requerido.</p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Hora</label>
+            <input type="time" id="r-hora-out" class="input-field" value="08:00" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Tipo de Vehículo</label>
+          <select id="r-tipo" class="input-field"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Tu Nombre</label>
+          <input type="text" id="r-nombre" class="input-field" placeholder="Nombre completo" />
+          <p class="field-error" id="err-nombre">Ingresa tu nombre.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">WhatsApp / Teléfono</label>
+          <input type="tel" id="r-tel" class="input-field" placeholder="+503 7890-1234" />
+          <p class="field-error" id="err-tel">Ingresa tu teléfono.</p>
+        </div>
+        <div id="reserve-summary" class="hidden bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm">
+          <div class="flex justify-between font-semibold">
+            <span class="text-gray-600">Días reservados:</span>
+            <span id="s-days" class="text-[#004A99] font-bold">—</span>
+          </div>
+          <div class="flex justify-between font-semibold mt-1">
+            <span class="text-gray-600">Total estimado:</span>
+            <span id="s-total" class="text-[#D32F2F] font-bold text-base">—</span>
+          </div>
+        </div>
+        <button type="submit" id="reserve-btn"
+          class="w-full flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-black text-sm py-3.5 rounded-lg transition-all shadow-md uppercase tracking-wide">
+          <i data-lucide="search" class="w-5 h-5" id="btn-icon"></i>
+          <span id="btn-text">BUSCAR DISPONIBILIDAD</span>
+          <div class="spinner" id="btn-spinner"></div>
+        </button>
+        <p class="text-center text-[11px] text-gray-400 pt-1">Al buscar aceptas nuestros <a href="#" class="underline text-[#004A99]">términos</a></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     MAIN + SIDEBAR
+══════════════════════════════════════ -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
+  <div class="flex flex-col lg:flex-row gap-10">
+
+    <main class="flex-1 min-w-0">
+
+      <!-- FLOTA -->
+      <section id="flota" class="mb-16">
+        <div class="text-center mb-2 fade-in">
+          <span class="text-xs font-bold uppercase tracking-widest text-[#004A99]">Nuestros vehículos</span>
+          <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-1">NUESTRA FLOTA</h2>
+          <div class="section-divider"></div>
+          <p class="text-gray-500 text-base max-w-xl mx-auto">Todos los vehículos incluyen seguro y kilometraje ilimitado.</p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-2 mb-8 fade-in" id="filter-tabs"></div>
+        <div id="car-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+      </section>
+
+      <!-- TARIFAS -->
+      <section id="tarifas" class="mb-16 fade-in">
+        <div class="text-center mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-[#004A99]">Precios transparentes</span>
+          <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-1">TARIFAS</h2>
+          <div class="section-divider"></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
+          <table class="w-full text-sm">
+            <thead class="bg-[#004A99] text-white">
+              <tr>
+                <th class="text-left px-5 py-3.5 font-bold">Categoría</th>
+                <th class="text-center px-4 py-3.5 font-bold">Por Día</th>
+                <th class="text-center px-4 py-3.5 font-bold">Por Semana</th>
+                <th class="text-center px-4 py-3.5 font-bold">Por Mes</th>
+                <th class="text-center px-4 py-3.5 font-bold">Incluye</th>
+              </tr>
+            </thead>
+            <tbody id="rates-table" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- CONTACTO -->
+      <section id="contacto" class="fade-in">
+        <div class="text-center mb-2">
+          <span class="text-xs font-bold uppercase tracking-widest text-[#004A99]">Estamos para servirte</span>
+          <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-1">CONTACTO</h2>
+          <div class="section-divider"></div>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-6">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="phone" class="w-6 h-6 text-[#004A99]"></i></div>
+            <h4 class="font-bold mb-1">Llámanos</h4>
+            <p class="text-gray-500 text-sm">7890-1234</p>
+            <a href="tel:+50378901234" class="mt-3 inline-block text-sm font-bold text-[#004A99] hover:underline">Llamar ahora</a>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="message-circle" class="w-6 h-6 text-green-600"></i></div>
+            <h4 class="font-bold mb-1">WhatsApp</h4>
+            <p class="text-gray-500 text-sm">Respuesta inmediata</p>
+            <a href="https://wa.me/50378901234?text=Hola,%20quiero%20rentar%20un%20carro" target="_blank" class="mt-3 inline-block text-sm font-bold text-green-600 hover:underline">Escribir ahora</a>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+            <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="mail" class="w-6 h-6 text-[#D32F2F]"></i></div>
+            <h4 class="font-bold mb-1">Email</h4>
+            <p class="text-gray-500 text-sm">reservas@rentacarmartinez.com</p>
+            <a href="mailto:reservas@rentacarmartinez.com" class="mt-3 inline-block text-sm font-bold text-[#D32F2F] hover:underline">Enviar email</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="w-full lg:w-80 xl:w-96 flex-shrink-0 space-y-8">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in">
+        <div class="bg-[#004A99] px-5 py-3.5"><h3 class="text-white font-black text-base">¿Por qué elegirnos?</h3></div>
+        <ul class="divide-y divide-gray-100">
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="shield-check" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Seguro incluido</p><p class="text-xs text-gray-500">Cobertura total sin costo extra</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="route" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Km ilimitado</p><p class="text-xs text-gray-500">Maneja sin preocupaciones</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="headphones" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Atención 24/7</p><p class="text-xs text-gray-500">Soporte en todo momento</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Entrega a domicilio</p><p class="text-xs text-gray-500">Llevamos el auto donde estés</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="star" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Flota nueva</p><p class="text-xs text-gray-500">Modelos 2021–2024</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="credit-card" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Sin depósitos ocultos</p><p class="text-xs text-gray-500">Precios claros desde el inicio</p></div></li>
+        </ul>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in">
+        <div class="bg-[#004A99] px-5 py-3.5"><h3 class="text-white font-black text-base">Lo que dicen nuestros clientes</h3></div>
+        <div id="testimonials" class="divide-y divide-gray-100"></div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in">
+        <div class="bg-[#004A99] px-5 py-3.5"><h3 class="text-white font-black text-base">Nuestras Ubicaciones</h3></div>
+        <div class="p-5 space-y-3">
+          <div class="flex items-start gap-3"><div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="map-pin" class="w-4 h-4 text-[#004A99]"></i></div><div><p class="font-bold text-sm">San Salvador</p><p class="text-xs text-gray-500">Col. Escalón, Av. Los Laureles #45<br>Lun–Sáb 7:00am–7:00pm</p></div></div>
+          <div class="flex items-start gap-3"><div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="map-pin" class="w-4 h-4 text-[#D32F2F]"></i></div><div><p class="font-bold text-sm">Usulután</p><p class="text-xs text-gray-500">4a Calle Ote. #112, Centro<br>Lun–Sáb 7:00am–6:00pm</p></div></div>
+        </div>
+        <div class="rounded-b-2xl overflow-hidden">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30737.034095246034!2d-89.24327427431638!3d13.69294419999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f6330f73b3df175%3A0xde4ae6d30cf12049!2sSan%20Salvador%2C%20El%20Salvador!5e0!3m2!1ses!2sus!4v1700000000000!5m2!1ses!2sus"
+            width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+      <div class="bg-[#004A99] rounded-2xl p-6 text-white text-center fade-in">
+        <i data-lucide="phone-call" class="w-10 h-10 mx-auto mb-3 text-yellow-300"></i>
+        <h3 class="font-black text-lg mb-1">¿Necesitas ayuda?</h3>
+        <p class="text-blue-200 text-sm mb-4">Llámanos o escríbenos ahora.</p>
+        <a href="tel:+50378901234" class="block bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-black py-3 rounded-xl mb-3 transition-colors">📞 7890-1234</a>
+        <a href="https://wa.me/50378901234?text=Hola" target="_blank" class="block bg-green-500 hover:bg-green-600 text-white font-black py-3 rounded-xl transition-colors">💬 WhatsApp</a>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- STATS BANNER -->
+<div class="bg-[#004A99] py-12">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+    <div><div class="text-4xl font-black text-white mb-1" id="stat-total">0</div><div class="text-blue-200 text-sm font-medium">Vehículos disponibles</div></div>
+    <div><div class="text-4xl font-black text-white mb-1" id="stat-cats">0</div><div class="text-blue-200 text-sm font-medium">Categorías</div></div>
+    <div><div class="text-4xl font-black text-white mb-1">+500</div><div class="text-blue-200 text-sm font-medium">Clientes satisfechos</div></div>
+    <div><div class="text-4xl font-black text-white mb-1">24/7</div><div class="text-blue-200 text-sm font-medium">Soporte disponible</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 text-gray-300 pt-12 pb-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-9 h-9 bg-[#004A99] rounded-lg flex items-center justify-center"><span class="text-white font-black text-sm">RCM</span></div>
+          <div><div class="font-black text-white text-base">Martínez</div><div class="text-[10px] font-semibold text-blue-300 uppercase tracking-widest -mt-0.5">Rent a Car</div></div>
+        </div>
+        <p class="text-sm text-gray-400 leading-relaxed">El Salvador's Premier Vehicle Rental. Flota moderna, precios justos.</p>
+      </div>
+      <div>
+        <h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Navegación</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#inicio" class="hover:text-white transition-colors">Inicio</a></li>
+          <li><a href="#flota" class="hover:text-white transition-colors">Nuestra Flota</a></li>
+          <li><a href="#reservar" class="hover:text-white transition-colors">Reservaciones</a></li>
+          <li><a href="#tarifas" class="hover:text-white transition-colors">Tarifas</a></li>
+          <li><a href="#contacto" class="hover:text-white transition-colors">Contacto</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Contacto</h4>
+        <ul class="space-y-2 text-sm text-gray-400">
+          <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-[#004A99]"></i> 7890-1234</li>
+          <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-[#004A99]"></i> reservas@rentacarmartinez.com</li>
+          <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-[#004A99]"></i> San Salvador / Usulután</li>
+          <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-[#004A99]"></i> Lun–Sáb 7:00am–7:00pm</li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Reserva Rápida</h4>
+        <a href="https://wa.me/50378901234?text=Hola,%20quiero%20rentar%20un%20carro" target="_blank"
+          class="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2.5 rounded-lg text-sm mb-3 transition-colors">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp Directo
+        </a>
+        <a href="tel:+50378901234"
+          class="flex items-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold px-4 py-2.5 rounded-lg text-sm transition-colors">
+          <i data-lucide="phone" class="w-4 h-4"></i> Llamar Ahora
+        </a>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+      <span>© 2025 Renta Car Martínez. Todos los derechos reservados.</span>
+      <span class="text-gray-700">Powered by Firebase</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Flotante WhatsApp -->
+<a href="https://wa.me/50378901234?text=Hola,%20quiero%20rentar%20un%20carro" target="_blank"
+  class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110">
+  <i data-lucide="message-circle" class="w-7 h-7"></i>
+</a>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ██████████  PANEL DE ADMINISTRADOR  ██████████
+══════════════════════════════════════════════════════════════ -->
+<div id="admin-overlay">
+
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <div class="w-full max-w-sm mx-auto px-4">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-[#004A99] rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="shield" class="w-8 h-8 text-white"></i>
+        </div>
+        <h1 class="text-2xl font-black text-white mb-1">Panel Admin</h1>
+        <p class="text-slate-400 text-sm">Renta Car Martínez</p>
+      </div>
+      <div class="admin-card">
+        <div class="space-y-4">
+          <div>
+            <label class="a-label">Correo electrónico</label>
+            <input type="email" id="login-user" class="a-input" placeholder="admin@tucorreo.com" />
+          </div>
+          <div>
+            <label class="a-label">Contraseña</label>
+            <input type="password" id="login-pass" class="a-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+          </div>
+          <p id="login-error" class="text-red-400 text-sm text-center hidden">Correo o contraseña incorrectos.</p>
+          <button onclick="doLogin()" class="w-full btn-primary justify-center py-3 text-base" id="login-btn">
+            Iniciar sesión
+          </button>
+        </div>
+      </div>
+      <button onclick="closeAdmin()" class="mt-4 w-full text-slate-600 hover:text-slate-400 text-sm transition-colors">← Volver al sitio</button>
+    </div>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="admin-panel">
+    <div class="flex h-screen overflow-hidden">
+
+      <!-- SIDEBAR -->
+      <aside class="w-64 flex-shrink-0 bg-[#0b1426] border-r border-slate-800 flex flex-col overflow-y-auto">
+        <div class="px-5 py-5 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-[#004A99] rounded-lg flex items-center justify-center">
+              <span class="text-white font-black text-xs">RCM</span>
+            </div>
+            <div>
+              <div class="text-white font-black text-sm">Admin Panel</div>
+              <div class="text-slate-500 text-[10px]">Martínez Rent a Car</div>
+            </div>
+          </div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1">
+          <div class="admin-nav-link active" onclick="showTab('dashboard',this)">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+          </div>
+          <div class="admin-nav-link" onclick="showTab('vehicles',this)">
+            <i data-lucide="car" class="w-4 h-4"></i> Vehículos
+          </div>
+          <div class="admin-nav-link" onclick="showTab('categories',this)">
+            <i data-lucide="tag" class="w-4 h-4"></i> Categorías
+          </div>
+          <div class="admin-nav-link" onclick="showTab('reservations',this)">
+            <i data-lucide="calendar-check" class="w-4 h-4"></i> Reservaciones
+          </div>
+        </nav>
+        <div class="px-3 py-4 border-t border-slate-800">
+          <button onclick="doLogout()" class="admin-nav-link w-full text-red-400 hover:text-red-300">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
+          </button>
+        </div>
+      </aside>
+
+      <!-- CONTENT -->
+      <main class="flex-1 overflow-y-auto bg-[#0f172a]">
+
+        <!-- ─── DASHBOARD ─── -->
+        <div id="tab-dashboard" class="p-6 space-y-6">
+          <div>
+            <h2 class="text-2xl font-black text-white mb-1">Dashboard</h2>
+            <p class="text-slate-400 text-sm">Resumen general del negocio</p>
+          </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="stat-card">
+              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Total Vehículos</div>
+              <div class="text-3xl font-black text-white" id="d-total">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Disponibles</div>
+              <div class="text-3xl font-black text-green-400" id="d-avail">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Categorías</div>
+              <div class="text-3xl font-black text-blue-400" id="d-cats">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Reservaciones</div>
+              <div class="text-3xl font-black text-yellow-400" id="d-reserv">0</div>
+            </div>
+          </div>
+          <div class="admin-card">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+              <i data-lucide="car" class="w-4 h-4 text-[#004A99]"></i> Vehículos Recientes
+            </h3>
+            <div id="d-vehicles-preview" class="space-y-3"></div>
+            <button onclick="showTab('vehicles',null)" class="mt-4 btn-primary text-sm">Ver todos →</button>
+          </div>
+        </div>
+
+        <!-- ─── VEHÍCULOS ─── -->
+        <div id="tab-vehicles" class="p-6 space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-black text-white mb-1">Vehículos</h2>
+              <p class="text-slate-400 text-sm">Gestiona tu flota completa</p>
+            </div>
+            <button onclick="openVehicleModal()" class="btn-primary">
+              <i data-lucide="plus" class="w-4 h-4"></i> Agregar Vehículo
+            </button>
+          </div>
+          <div class="admin-card overflow-hidden">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Imagen</th><th>Nombre</th><th>Categoría</th>
+                  <th>Precio/día</th><th>Estado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="vehicles-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ─── CATEGORÍAS ─── -->
+        <div id="tab-categories" class="p-6 space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-black text-white mb-1">Categorías</h2>
+              <p class="text-slate-400 text-sm">Define los tipos de vehículos</p>
+            </div>
+            <button onclick="openCatModal()" class="btn-primary">
+              <i data-lucide="plus" class="w-4 h-4"></i> Nueva Categoría
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="categories-grid"></div>
+        </div>
+
+        <!-- ─── RESERVACIONES ─── -->
+        <div id="tab-reservations" class="p-6 space-y-6 hidden">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-black text-white mb-1">Reservaciones</h2>
+              <p class="text-slate-400 text-sm">Solicitudes recibidas</p>
+            </div>
+            <button onclick="clearReservations()" class="btn-ghost text-sm">
+              <i data-lucide="trash-2" class="w-4 h-4"></i> Limpiar todo
+            </button>
+          </div>
+          <div class="admin-card overflow-hidden">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Fecha</th><th>Nombre</th><th>Teléfono</th><th>Ciudad</th><th>Vehículo</th><th>Días</th><th>WA</th></tr>
+              </thead>
+              <tbody id="reservations-table"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: VEHÍCULO ══ -->
+<div class="modal-bg" id="vehicle-modal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+      <h3 class="text-white font-black text-lg" id="vm-title">Agregar Vehículo</h3>
+      <button onclick="closeVehicleModal()" class="text-slate-400 hover:text-white transition-colors">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="a-label">Imagen del Vehículo</label>
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('img-file').click()"
+          ondragover="event.preventDefault();this.classList.add('dragover')"
+          ondragleave="this.classList.remove('dragover')"
+          ondrop="handleDrop(event)">
+          <div id="upload-placeholder">
+            <i data-lucide="cloud-upload" class="w-10 h-10 text-slate-500 mx-auto mb-2"></i>
+            <p class="text-slate-400 text-sm"><span class="text-blue-400 font-semibold">Click para subir</span> o arrastra aquí</p>
+            <p class="text-slate-600 text-xs mt-1">PNG, JPG, WEBP — Se sube automáticamente a Cloudinary</p>
+          </div>
+          <div id="upload-loading" class="hidden">
+            <div class="spinner mx-auto" style="display:block;border-top-color:#004A99;border-color:rgba(0,74,153,.3)"></div>
+            <p class="text-slate-400 text-sm mt-2">Subiendo imagen…</p>
+          </div>
+          <div id="upload-preview" class="hidden">
+            <img id="preview-img" class="w-full h-40 object-cover rounded-lg" src="" alt="preview" />
+            <button onclick="event.stopPropagation();clearImg()" class="mt-2 text-red-400 text-xs font-bold hover:text-red-300">✕ Quitar imagen</button>
+          </div>
+          <input type="file" id="img-file" accept="image/*" class="hidden" onchange="uploadImg(this)" />
+        </div>
+        <p id="img-error" class="text-red-400 text-xs mt-1 hidden"></p>
+        <div class="mt-2">
+          <label class="a-label">O pega URL de imagen directamente</label>
+          <input type="url" id="vm-img-url" class="a-input" placeholder="https://..." oninput="previewFromUrl(this.value)" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="a-label">Nombre del Vehículo *</label>
+          <input type="text" id="vm-name" class="a-input" placeholder="Ej: Toyota Corolla 2023" />
+        </div>
+        <div>
+          <label class="a-label">Categoría *</label>
+          <select id="vm-cat" class="a-input"></select>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="a-label">Precio por Día (USD) *</label>
+          <input type="number" id="vm-price" class="a-input" placeholder="45" min="1" />
+        </div>
+        <div>
+          <label class="a-label">Pasajeros</label>
+          <input type="number" id="vm-passengers" class="a-input" placeholder="5" min="1" max="20" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="a-label">Transmisión</label>
+          <select id="vm-trans" class="a-input">
+            <option value="Automático">Automático</option>
+            <option value="Manual">Manual</option>
+          </select>
+        </div>
+        <div>
+          <label class="a-label">Combustible</label>
+          <select id="vm-fuel" class="a-input">
+            <option value="Gasolina">Gasolina</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Híbrido">Híbrido</option>
+            <option value="Eléctrico">Eléctrico</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="a-label">Descripción</label>
+        <input type="text" id="vm-desc" class="a-input" placeholder="Ej: Económico y eficiente para la ciudad" />
+      </div>
+      <div>
+        <label class="toggle-wrap">
+          <div class="toggle on" id="vm-avail-toggle" onclick="this.classList.toggle('on')"></div>
+          <span class="text-slate-300 text-sm font-medium">Disponible para renta</span>
+        </label>
+      </div>
+      <p id="vm-error" class="text-red-400 text-sm hidden"></p>
+    </div>
+    <div class="px-6 pb-5 flex gap-3 justify-end">
+      <button onclick="closeVehicleModal()" class="btn-ghost">Cancelar</button>
+      <button onclick="saveVehicle()" class="btn-primary">
+        <i data-lucide="save" class="w-4 h-4"></i> <span id="vm-save-text">Guardar Vehículo</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CATEGORÍA ══ -->
+<div class="modal-bg" id="cat-modal">
+  <div class="modal-box max-w-sm">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+      <h3 class="text-white font-black text-lg" id="cm-title">Nueva Categoría</h3>
+      <button onclick="closeCatModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="a-label">Nombre de la Categoría *</label>
+        <input type="text" id="cm-name" class="a-input" placeholder="Ej: Camioneta, Crossover…" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="a-label">Precio base/día (USD)</label>
+          <input type="number" id="cm-price" class="a-input" placeholder="50" min="1" />
+        </div>
+        <div>
+          <label class="a-label">Precio semana</label>
+          <input type="number" id="cm-week" class="a-input" placeholder="300" min="1" />
+        </div>
+      </div>
+      <div>
+        <label class="a-label">Lo que incluye</label>
+        <input type="text" id="cm-inc" class="a-input" placeholder="Seguro · Km ilim." />
+      </div>
+      <p id="cm-error" class="text-red-400 text-sm hidden"></p>
+    </div>
+    <div class="px-6 pb-5 flex gap-3 justify-end">
+      <button onclick="closeCatModal()" class="btn-ghost">Cancelar</button>
+      <button onclick="saveCat()" class="btn-primary"><i data-lucide="save" class="w-4 h-4"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     FIREBASE + LÓGICA PRINCIPAL
+══════════════════════════════════════ -->
+<script type="module">
+/* ══════════════════════════════════════════════════════════
+   ⚙️  CONFIGURACIÓN GENERAL DEL SITIO
+══════════════════════════════════════════════════════════ */
+const CFG = {
+  whatsapp:     "50378901234",
+  cloudName:    "dt9xgkf8l",
+  uploadPreset: "Ferreteria",
+};
+
+/* ══════════════════════════════════════════════════════════
+   🔥  FIREBASE — Configuración real de tu proyecto
+══════════════════════════════════════════════════════════ */
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAnalytics }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+import { getAuth, signInWithEmailAndPassword,
+         signOut, onAuthStateChanged }
+                           from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc,
+         addDoc, updateDoc, deleteDoc,
+         onSnapshot, query, orderBy,
+         serverTimestamp, writeBatch, getDocs }
+                           from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyBTzrrZisbPG4M4mKBWgkrebARgFlJp8os",
+  authDomain:        "renta-car-martinez.firebaseapp.com",
+  projectId:         "renta-car-martinez",
+  storageBucket:     "renta-car-martinez.firebasestorage.app",
+  messagingSenderId: "1052742481978",
+  appId:             "1:1052742481978:web:8f7bd29b9b00415722dd03",
+  measurementId:     "G-C756QLMHBH",
+};
+
+const app       = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth      = getAuth(app);
+const db        = getFirestore(app);
+
+/* ══════════════════════════════════════════════════════════
+   📦  ESTADO EN MEMORIA (lleno desde Firestore en tiempo real)
+══════════════════════════════════════════════════════════ */
+let vehicles         = [];
+let categories       = [];
+let reservations     = [];
+let editingVehicleId = null;
+let editingCatId     = null;
+let pendingImgUrl    = null;
+let currentFilter    = "todos";
+
+/* ══════════════════════════════════════════════════════════
+   🔔  LISTENERS EN TIEMPO REAL — Firestore
+══════════════════════════════════════════════════════════ */
+function initRealtimeListeners() {
+  // Vehículos — actualiza sitio público y admin en tiempo real
+  onSnapshot(query(collection(db, "autos"), orderBy("nombre")), snap => {
+    vehicles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderCars();
+    renderFilterTabs();
+    updatePublicStats();
+    refreshAdminData();
+  });
+
+  // Categorías
+  onSnapshot(query(collection(db, "categorias"), orderBy("nombre")), snap => {
+    categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderRates();
+    renderFilterTabs();
+    updatePublicStats();
+    refreshAdminData();
+  });
+
+  // Reservaciones (más recientes primero)
+  onSnapshot(query(collection(db, "reservas"), orderBy("fecha", "desc")), snap => {
+    reservations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    refreshAdminData();
+  });
+}
+
+initRealtimeListeners();
+
+/* ══════════════════════════════════════════════════════════
+   🌐  SITIO PÚBLICO — RENDER
+══════════════════════════════════════════════════════════ */
+function renderCars() {
+  const grid = document.getElementById("car-grid");
+  const list = currentFilter === "todos"
+    ? vehicles.filter(v => v.disponible)
+    : vehicles.filter(v => v.disponible && v.categoria === currentFilter);
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400">
+      <div class="text-5xl mb-3">🚗</div>
+      <p class="font-bold">No hay vehículos en esta categoría.</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(v => `
+    <article class="car-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+      <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
+        <img src="${v.imagen || ''}" alt="${v.nombre}" loading="lazy"
+          onerror="this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600'"
+          class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+        <span class="absolute top-3 left-3 bg-[#004A99]/90 text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">${v.categoria || ''}</span>
+        <span class="price-badge absolute top-3 right-3">$${v.precio}/día</span>
+      </div>
+      <div class="p-5 flex flex-col flex-1">
+        <h3 class="font-black text-gray-900 text-base mb-1">${v.nombre}</h3>
+        <p class="text-gray-500 text-sm mb-4 flex-1">${v.descripcion || ""}</p>
+        <div class="grid grid-cols-3 gap-2 mb-4 text-xs text-gray-500">
+          <div class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.pasajeros || 5} pers.</div>
+          <div class="flex items-center gap-1"><i data-lucide="settings" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.transmision || "Auto"}</div>
+          <div class="flex items-center gap-1"><i data-lucide="fuel" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.combustible || "Gas"}</div>
+        </div>
+        <button onclick="reserveWA('${(v.nombre || '').replace(/'/g,"\\'")}', ${v.precio})"
+          class="w-full flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold text-sm py-2.5 rounded-xl transition-all shadow-sm">
+          <i data-lucide="message-circle" class="w-4 h-4"></i> Reservar por WhatsApp
+        </button>
+      </div>
+    </article>`).join("");
+  lucide.createIcons();
+}
+
+function renderFilterTabs() {
+  const cats = ["todos", ...categories.map(c => c.nombre)];
+  document.getElementById("filter-tabs").innerHTML = cats.map(c => `
+    <button class="filter-tab ${c === currentFilter ? "active-tab" : ""}"
+      onclick="setFilter('${c}',this)">${c === "todos" ? "Todos" : c}</button>`).join("");
+
+  const rTipo = document.getElementById("r-tipo");
+  if (rTipo) rTipo.innerHTML = `<option value="">Todos los tipos</option>` +
+    categories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join("");
+}
+
+function renderRates() {
+  document.getElementById("rates-table").innerHTML = categories.map((c, i) => `
+    <tr class="${i % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50 transition-colors">
+      <td class="px-5 py-3.5 font-bold text-gray-800">${c.nombre}</td>
+      <td class="px-4 py-3.5 text-center font-black text-[#D32F2F]">$${c.precioDia}</td>
+      <td class="px-4 py-3.5 text-center font-semibold text-gray-700">$${c.precioSemana}</td>
+      <td class="px-4 py-3.5 text-center font-semibold text-gray-700">$${Math.round(c.precioDia * 22)}</td>
+      <td class="px-4 py-3.5 text-center text-gray-500 text-xs">${c.incluye || 'Seguro · Km ilim.'}</td>
+    </tr>`).join("");
+}
+
+function renderTestimonials() {
+  const list = [
+    { n:"Carlos M.", l:"San Salvador", t:"Excelente servicio. El auto llegó puntual y en perfecto estado. ¡Los recomiendo!" },
+    { n:"María R.",  l:"Usulután",     t:"La atención por WhatsApp fue rapidísima. Proceso muy sencillo." },
+    { n:"Luis P.",   l:"San Salvador", t:"Ya es la tercera vez que los uso. Sin duda los mejores de El Salvador." },
+    { n:"Ana G.",    l:"Santa Ana",    t:"Me entregaron el auto en el aeropuerto sin demoras. Muy profesionales." },
+  ];
+  document.getElementById("testimonials").innerHTML = list.map(t => `
+    <div class="px-5 py-4">
+      <div class="text-yellow-400 text-base mb-2">★★★★★</div>
+      <p class="text-sm text-gray-600 italic leading-relaxed mb-2">"${t.t}"</p>
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-full bg-[#004A99] flex items-center justify-center text-white font-black text-xs">${t.n[0]}</div>
+        <div><p class="font-bold text-xs text-gray-800">${t.n}</p><p class="text-[10px] text-gray-400">${t.l}</p></div>
+      </div>
+    </div><div class="border-t border-gray-100"></div>`).join("");
+}
+
+function updatePublicStats() {
+  document.getElementById("stat-total").textContent = vehicles.filter(v => v.disponible).length;
+  document.getElementById("stat-cats").textContent  = categories.length;
+}
+
+window.setFilter = function(tipo, btn) {
+  currentFilter = tipo;
+  document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active-tab"));
+  btn?.classList.add("active-tab");
+  renderCars();
+};
+
+window.reserveWA = function(nombre, precio) {
+  const msg = `Hola, me interesa reservar el *${nombre}* ($${precio}/día). ¿Está disponible?`;
+  window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+};
+
+/* ══════════════════════════════════════════════════════════
+   📋  ADMIN — ACTUALIZAR UI
+══════════════════════════════════════════════════════════ */
+function refreshAdminData() {
+  const dTotal = document.getElementById("d-total");
+  if (!dTotal) return;
+
+  const avail = vehicles.filter(v => v.disponible).length;
+  dTotal.textContent = vehicles.length;
+  document.getElementById("d-avail").textContent = avail;
+  document.getElementById("d-cats").textContent  = categories.length;
+  document.getElementById("d-reserv").textContent= reservations.length;
+
+  document.getElementById("d-vehicles-preview").innerHTML = vehicles.slice(0, 4).map(v => `
+    <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+      <img src="${v.imagen || ''}" alt="${v.nombre}" class="w-14 h-10 object-cover rounded-md bg-slate-700"
+        onerror="this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=100'" />
+      <div class="flex-1 min-w-0">
+        <p class="text-white text-sm font-bold truncate">${v.nombre}</p>
+        <p class="text-slate-400 text-xs">${v.categoria} · $${v.precio}/día</p>
+      </div>
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v.disponible ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}">
+        ${v.disponible ? "Disponible" : "Rentado"}
+      </span>
+    </div>`).join("");
+
+  document.getElementById("vehicles-table").innerHTML = vehicles.length
+    ? vehicles.map(v => `
+      <tr>
+        <td><img src="${v.imagen || ''}" alt="${v.nombre}" class="w-16 h-11 object-cover rounded-lg bg-slate-700"
+          onerror="this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=100'" /></td>
+        <td><p class="font-bold text-white">${v.nombre}</p><p class="text-slate-400 text-xs">${v.descripcion || ""}</p></td>
+        <td><span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold">${v.categoria}</span></td>
+        <td class="font-black text-green-400">$${v.precio}</td>
+        <td>
+          <div class="toggle-wrap">
+            <div class="toggle ${v.disponible ? "on" : ""}" onclick="toggleAvail('${v.id}',this)"></div>
+            <span class="text-slate-400 text-xs">${v.disponible ? "Disponible" : "Rentado"}</span>
+          </div>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <button onclick="openVehicleModal('${v.id}')" class="btn-ghost text-xs py-1 px-2">
+              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Editar
+            </button>
+            <button onclick="deleteVehicle('${v.id}')" class="btn-danger text-xs py-1 px-2">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </td>
+      </tr>`).join("")
+    : `<tr><td colspan="6" class="text-center text-slate-500 py-12">No hay vehículos. Agrega el primero.</td></tr>`;
+
+  document.getElementById("categories-grid").innerHTML = categories.map(c => `
+    <div class="admin-card flex flex-col gap-3">
+      <div class="flex items-start justify-between">
+        <div>
+          <h4 class="text-white font-bold">${c.nombre}</h4>
+          <p class="text-slate-400 text-xs mt-0.5">${c.incluye || ''}</p>
+        </div>
+        <div class="flex gap-1">
+          <button onclick="openCatModal('${c.id}')" class="btn-ghost text-xs py-1 px-2"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+          <button onclick="deleteCat('${c.id}')" class="btn-danger text-xs py-1 px-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+        </div>
+      </div>
+      <div class="flex gap-3 text-center">
+        <div class="flex-1 bg-slate-800 rounded-lg py-2">
+          <div class="text-green-400 font-black">$${c.precioDia}</div>
+          <div class="text-slate-500 text-[10px]">por día</div>
+        </div>
+        <div class="flex-1 bg-slate-800 rounded-lg py-2">
+          <div class="text-blue-400 font-black">$${c.precioSemana}</div>
+          <div class="text-slate-500 text-[10px]">por semana</div>
+        </div>
+      </div>
+      <div class="text-slate-400 text-xs">${vehicles.filter(v => v.categoria === c.nombre).length} vehículo(s)</div>
+    </div>`).join("");
+
+  document.getElementById("reservations-table").innerHTML = reservations.length
+    ? reservations.map(r => {
+        const fecha = r.fecha?.toDate ? r.fecha.toDate() : new Date(r.fecha || Date.now());
+        return `<tr>
+          <td class="text-slate-400 text-xs">${fecha.toLocaleString("es-SV",{dateStyle:"short",timeStyle:"short"})}</td>
+          <td class="font-semibold text-white">${r.nombre}</td>
+          <td class="text-slate-300">${r.telefono}</td>
+          <td class="text-slate-300">${r.ciudad}</td>
+          <td class="text-slate-300">${r.tipo}</td>
+          <td class="font-bold text-yellow-400">${r.dias}</td>
+          <td>
+            <a href="https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(`Hola ${r.nombre}, te confirmamos tu reserva.`)}" target="_blank"
+              class="text-green-400 hover:text-green-300">
+              <i data-lucide="message-circle" class="w-4 h-4"></i>
+            </a>
+          </td>
+        </tr>`;}).join("")
+    : `<tr><td colspan="7" class="text-center text-slate-500 py-12">No hay reservaciones aún.</td></tr>`;
+
+  lucide.createIcons();
+}
+
+/* ══════════════════════════════════════════════════════════
+   📋  ADMIN TABS
+══════════════════════════════════════════════════════════ */
+window.showTab = function(tab, btn) {
+  ["dashboard","vehicles","categories","reservations"].forEach(t =>
+    document.getElementById("tab-"+t).classList.add("hidden"));
+  document.getElementById("tab-"+tab).classList.remove("hidden");
+  document.querySelectorAll(".admin-nav-link").forEach(l => l.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+  else document.querySelectorAll(".admin-nav-link")[0].classList.add("active");
+  lucide.createIcons();
+};
+
+/* ══════════════════════════════════════════════════════════
+   🔐  ADMIN AUTH — Firebase Authentication
+══════════════════════════════════════════════════════════ */
+window.openAdmin = function() {
+  document.getElementById("admin-overlay").classList.add("open");
+  onAuthStateChanged(auth, user => {
+    if (user) { showAdminPanel(); }
+    else {
+      document.getElementById("login-screen").style.display = "flex";
+      document.getElementById("admin-panel").style.display  = "none";
+    }
+  });
+};
+
+window.closeAdmin = function() {
+  document.getElementById("admin-overlay").classList.remove("open");
+};
+
+window.doLogin = async function() {
+  const email  = document.getElementById("login-user").value.trim();
+  const pass   = document.getElementById("login-pass").value;
+  const errEl  = document.getElementById("login-error");
+  const btn    = document.getElementById("login-btn");
+
+  if (!email || !pass) { errEl.textContent = "Ingresa tu correo y contraseña."; errEl.classList.remove("hidden"); return; }
+  btn.disabled = true; btn.textContent = "Verificando…";
+  errEl.classList.add("hidden");
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    showAdminPanel();
+  } catch {
+    errEl.textContent = "Correo o contraseña incorrectos.";
+    errEl.classList.remove("hidden");
+    document.getElementById("login-pass").value = "";
+  } finally {
+    btn.disabled = false; btn.textContent = "Iniciar sesión";
+  }
+};
+
+window.doLogout = async function() {
+  await signOut(auth);
+  document.getElementById("admin-panel").style.display  = "none";
+  document.getElementById("admin-panel").classList.remove("open");
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("login-pass").value = "";
+};
+
+function showAdminPanel() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("admin-panel").style.display  = "block";
+  document.getElementById("admin-panel").classList.add("open");
+  refreshAdminData();
+  lucide.createIcons();
+}
+
+/* ══════════════════════════════════════════════════════════
+   🚗  VEHÍCULOS CRUD — Firestore
+══════════════════════════════════════════════════════════ */
+window.openVehicleModal = function(id) {
+  editingVehicleId = id || null;
+  pendingImgUrl    = null;
+  clearImg();
+  document.getElementById("vehicle-modal").classList.add("open");
+  document.getElementById("vm-error").classList.add("hidden");
+
+  document.getElementById("vm-cat").innerHTML =
+    categories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join("");
+
+  if (id) {
+    const v = vehicles.find(v => v.id === id);
+    document.getElementById("vm-title").textContent    = "Editar Vehículo";
+    document.getElementById("vm-save-text").textContent= "Actualizar";
+    document.getElementById("vm-name").value       = v.nombre;
+    document.getElementById("vm-cat").value        = v.categoria;
+    document.getElementById("vm-price").value      = v.precio;
+    document.getElementById("vm-passengers").value = v.pasajeros || 5;
+    document.getElementById("vm-trans").value      = v.transmision || "Automático";
+    document.getElementById("vm-fuel").value       = v.combustible || "Gasolina";
+    document.getElementById("vm-desc").value       = v.descripcion || "";
+    document.getElementById("vm-img-url").value    = v.imagen || "";
+    document.getElementById("vm-avail-toggle").classList.toggle("on", !!v.disponible);
+    if (v.imagen) { pendingImgUrl = v.imagen; previewFromUrl(v.imagen); }
+  } else {
+    document.getElementById("vm-title").textContent    = "Agregar Vehículo";
+    document.getElementById("vm-save-text").textContent= "Guardar Vehículo";
+    ["vm-name","vm-price","vm-desc","vm-img-url"].forEach(i => document.getElementById(i).value = "");
+    document.getElementById("vm-passengers").value = "5";
+    document.getElementById("vm-trans").value = "Automático";
+    document.getElementById("vm-fuel").value  = "Gasolina";
+    document.getElementById("vm-avail-toggle").classList.add("on");
+  }
+  lucide.createIcons();
+};
+
+window.closeVehicleModal = function() {
+  document.getElementById("vehicle-modal").classList.remove("open");
+};
+
+window.saveVehicle = async function() {
+  const nombre  = document.getElementById("vm-name").value.trim();
+  const cat     = document.getElementById("vm-cat").value;
+  const precio  = parseFloat(document.getElementById("vm-price").value);
+  const errEl   = document.getElementById("vm-error");
+
+  if (!nombre)             { errEl.textContent = "El nombre es obligatorio."; errEl.classList.remove("hidden"); return; }
+  if (!cat)                { errEl.textContent = "Selecciona una categoría."; errEl.classList.remove("hidden"); return; }
+  if (!precio || precio<=0){ errEl.textContent = "Ingresa un precio válido."; errEl.classList.remove("hidden"); return; }
+  errEl.classList.add("hidden");
+
+  const imagen = pendingImgUrl || document.getElementById("vm-img-url").value.trim()
+    || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600";
+
+  const data = {
+    nombre,
+    categoria:   cat,
+    precio,
+    pasajeros:   parseInt(document.getElementById("vm-passengers").value) || 5,
+    transmision: document.getElementById("vm-trans").value,
+    combustible: document.getElementById("vm-fuel").value,
+    descripcion: document.getElementById("vm-desc").value.trim(),
+    disponible:  document.getElementById("vm-avail-toggle").classList.contains("on"),
+    imagen,
+  };
+
+  try {
+    if (editingVehicleId) {
+      await updateDoc(doc(db, "autos", editingVehicleId), data);
+      showToast("✅ Vehículo actualizado");
+    } else {
+      await addDoc(collection(db, "autos"), data);
+      showToast("✅ Vehículo agregado exitosamente");
+    }
+    closeVehicleModal();
+  } catch (err) {
+    errEl.textContent = "Error: " + err.message;
+    errEl.classList.remove("hidden");
+  }
+};
+
+window.deleteVehicle = async function(id) {
+  if (!confirm("¿Eliminar este vehículo? Esta acción no se puede deshacer.")) return;
+  try {
+    await deleteDoc(doc(db, "autos", id));
+    showToast("🗑 Vehículo eliminado");
+  } catch { showToast("❌ Error al eliminar"); }
+};
+
+window.toggleAvail = async function(id, toggleEl) {
+  const v = vehicles.find(v => v.id === id);
+  if (!v) return;
+  const nuevo = !v.disponible;
+  try {
+    await updateDoc(doc(db, "autos", id), { disponible: nuevo });
+    toggleEl.classList.toggle("on", nuevo);
+    toggleEl.nextElementSibling.textContent = nuevo ? "Disponible" : "Rentado";
+  } catch { showToast("❌ Error al cambiar estado"); }
+};
+
+/* ══════════════════════════════════════════════════════════
+   🏷️  CATEGORÍAS CRUD — Firestore
+══════════════════════════════════════════════════════════ */
+window.openCatModal = function(id) {
+  editingCatId = id || null;
+  document.getElementById("cat-modal").classList.add("open");
+  document.getElementById("cm-error").classList.add("hidden");
+
+  if (id) {
+    const c = categories.find(c => c.id === id);
+    document.getElementById("cm-title").textContent = "Editar Categoría";
+    document.getElementById("cm-name").value  = c.nombre;
+    document.getElementById("cm-price").value = c.precioDia;
+    document.getElementById("cm-week").value  = c.precioSemana;
+    document.getElementById("cm-inc").value   = c.incluye || '';
+  } else {
+    document.getElementById("cm-title").textContent = "Nueva Categoría";
+    ["cm-name","cm-price","cm-week"].forEach(i => document.getElementById(i).value = "");
+    document.getElementById("cm-inc").value = "Seguro · Km ilim.";
+  }
+};
+
+window.closeCatModal = function() {
+  document.getElementById("cat-modal").classList.remove("open");
+};
+
+window.saveCat = async function() {
+  const nombre       = document.getElementById("cm-name").value.trim();
+  const precioDia    = parseFloat(document.getElementById("cm-price").value) || 0;
+  const precioSemana = parseFloat(document.getElementById("cm-week").value) || precioDia * 6;
+  const incluye      = document.getElementById("cm-inc").value.trim() || "Seguro · Km ilim.";
+  const errEl        = document.getElementById("cm-error");
+
+  if (!nombre)        { errEl.textContent = "El nombre es obligatorio."; errEl.classList.remove("hidden"); return; }
+  if (precioDia <= 0) { errEl.textContent = "Ingresa un precio válido."; errEl.classList.remove("hidden"); return; }
+  errEl.classList.add("hidden");
+
+  const data = { nombre, precioDia, precioSemana, incluye };
+
+  try {
+    if (editingCatId) {
+      const oldCat = categories.find(c => c.id === editingCatId);
+      await updateDoc(doc(db, "categorias", editingCatId), data);
+      if (oldCat && oldCat.nombre !== nombre) {
+        const batch = writeBatch(db);
+        vehicles.filter(v => v.categoria === oldCat.nombre)
+          .forEach(v => batch.update(doc(db, "autos", v.id), { categoria: nombre }));
+        await batch.commit();
+      }
+      showToast("✅ Categoría actualizada");
+    } else {
+      await addDoc(collection(db, "categorias"), data);
+      showToast("✅ Categoría creada");
+    }
+    closeCatModal();
+  } catch (err) {
+    errEl.textContent = "Error: " + err.message;
+    errEl.classList.remove("hidden");
+  }
+};
+
+window.deleteCat = async function(id) {
+  const cat   = categories.find(c => c.id === id);
+  const count = vehicles.filter(v => v.categoria === cat?.nombre).length;
+  if (count > 0) { showToast(`⚠️ Mueve los ${count} vehículo(s) primero.`); return; }
+  if (!confirm(`¿Eliminar la categoría "${cat?.nombre}"?`)) return;
+  try {
+    await deleteDoc(doc(db, "categorias", id));
+    showToast("🗑 Categoría eliminada");
+  } catch { showToast("❌ Error al eliminar"); }
+};
+
+/* ══════════════════════════════════════════════════════════
+   ☁️  CLOUDINARY UPLOAD
+══════════════════════════════════════════════════════════ */
+window.uploadImg = async function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  startUpload();
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", CFG.uploadPreset);
+  try {
+    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CFG.cloudName}/image/upload`, { method:"POST", body:fd });
+    if (!res.ok) throw new Error("Upload fallido");
+    const data = await res.json();
+    pendingImgUrl = data.secure_url;
+    document.getElementById("vm-img-url").value = pendingImgUrl;
+    showPreview(pendingImgUrl);
+    showToast("✅ Imagen subida a Cloudinary");
+  } catch {
+    const errEl = document.getElementById("img-error");
+    errEl.textContent = "❌ Error al subir. Verifica tu Upload Preset en Cloudinary (debe ser unsigned).";
+    errEl.classList.remove("hidden");
+    resetUpload();
+  }
+};
+
+window.handleDrop = function(e) {
+  e.preventDefault();
+  document.getElementById("upload-zone").classList.remove("dragover");
+  const file = e.dataTransfer.files[0];
+  if (file) { const dt = new DataTransfer(); dt.items.add(file); document.getElementById("img-file").files = dt.files; uploadImg(document.getElementById("img-file")); }
+};
+
+function startUpload()  { document.getElementById("upload-placeholder").classList.add("hidden"); document.getElementById("upload-preview").classList.add("hidden"); document.getElementById("upload-loading").classList.remove("hidden"); }
+function resetUpload()  { document.getElementById("upload-loading").classList.add("hidden"); document.getElementById("upload-placeholder").classList.remove("hidden"); }
+function showPreview(url) { document.getElementById("upload-loading").classList.add("hidden"); document.getElementById("upload-placeholder").classList.add("hidden"); document.getElementById("preview-img").src = url; document.getElementById("upload-preview").classList.remove("hidden"); }
+
+window.clearImg = function() {
+  pendingImgUrl = null;
+  document.getElementById("img-file").value = "";
+  document.getElementById("upload-placeholder").classList.remove("hidden");
+  document.getElementById("upload-preview").classList.add("hidden");
+  document.getElementById("upload-loading").classList.add("hidden");
+  document.getElementById("img-error").classList.add("hidden");
+};
+window.previewFromUrl = function(url) { if (url && url.startsWith("http")) { pendingImgUrl = url; showPreview(url); } };
+
+/* ══════════════════════════════════════════════════════════
+   📅  FORMULARIO DE RESERVA — Guarda en Firestore
+══════════════════════════════════════════════════════════ */
+function getV(id) { return document.getElementById(id)?.value?.trim() || ""; }
+function setErr(id, show, msg) {
+  const el = document.getElementById(id), inp = document.getElementById(id.replace("err-","r-"));
+  if (el) { el.style.display = show ? "block" : "none"; if (msg) el.textContent = msg; }
+  if (inp) inp.classList.toggle("error", show);
+}
+
+function validateForm() {
+  let ok = true;
+  [["r-ciudad","err-ciudad","Selecciona una ciudad."],
+   ["r-fecha-in","err-fecha-in","Fecha requerida."],
+   ["r-fecha-out","err-fecha-out","Fecha requerida."],
+   ["r-nombre","err-nombre","Ingresa tu nombre."],
+   ["r-tel","err-tel","Ingresa tu teléfono."]
+  ].forEach(([f,e,m]) => {
+    const v = getV(f), ok2 = f==="r-nombre" ? v.length>=3 : f==="r-tel" ? v.length>=7 : v !== "";
+    setErr(e, !ok2, m); if (!ok2) ok = false;
+  });
+  const fi = getV("r-fecha-in"), fo = getV("r-fecha-out");
+  if (fi && fo && fo <= fi) { setErr("err-fecha-out", true, "La devolución debe ser después de la recogida."); ok = false; }
+  return ok;
+}
+
+function calcDays() {
+  const d = (new Date(getV("r-fecha-out")) - new Date(getV("r-fecha-in"))) / 86400000;
+  return d > 0 ? d : 0;
+}
+
+["r-fecha-in","r-fecha-out","r-tipo"].forEach(id => {
+  document.getElementById(id)?.addEventListener("change", () => {
+    const days = calcDays(), tipo = getV("r-tipo");
+    const cat = categories.find(c => c.nombre === tipo);
+    const summary = document.getElementById("reserve-summary");
+    if (days > 0) {
+      document.getElementById("s-days").textContent  = `${days} día${days > 1 ? "s" : ""}`;
+      document.getElementById("s-total").textContent = `$${((cat?.precioDia || 35) * days).toFixed(2)}`;
+      summary.classList.remove("hidden");
+    } else summary.classList.add("hidden");
+  });
+});
+
+document.getElementById("reserve-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!validateForm()) return;
+  const btn = document.getElementById("reserve-btn"), spinner = document.getElementById("btn-spinner"),
+        btnText = document.getElementById("btn-text"), btnIcon = document.getElementById("btn-icon");
+  btn.disabled = true; spinner.style.display = "block";
+  btnText.textContent = "Enviando…"; btnIcon.style.display = "none";
+
+  const reserva = {
+    ciudad:        getV("r-ciudad"),
+    fechaRecogida: getV("r-fecha-in"),
+    horaRecogida:  getV("r-hora-in"),
+    fechaDev:      getV("r-fecha-out"),
+    horaDev:       getV("r-hora-out"),
+    tipo:          getV("r-tipo") || "Todos",
+    nombre:        getV("r-nombre"),
+    telefono:      getV("r-tel"),
+    dias:          calcDays(),
+    fecha:         serverTimestamp(),
+    estado:        "pendiente",
+  };
+
+  try {
+    await addDoc(collection(db, "reservas"), reserva);
+    const msg = `🚗 *Nueva Reserva - Renta Car Martínez*\n\n👤 *Nombre:* ${reserva.nombre}\n📞 *Tel:* ${reserva.telefono}\n📍 *Ciudad:* ${reserva.ciudad}\n🚙 *Tipo:* ${reserva.tipo}\n📅 *Recogida:* ${reserva.fechaRecogida} ${reserva.horaRecogida}\n📅 *Devolución:* ${reserva.fechaDev} ${reserva.horaDev}\n📆 *Días:* ${reserva.dias}`;
+    showToast("✅ ¡Reserva enviada! Redirigiendo a WhatsApp…");
+    setTimeout(() => {
+      window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+      document.getElementById("reserve-form").reset();
+      document.getElementById("reserve-summary").classList.add("hidden");
+    }, 1500);
+  } catch {
+    showToast("❌ Error al enviar. Llámanos al 7890-1234.");
+  } finally {
+    btn.disabled = false; spinner.style.display = "none";
+    btnText.textContent = "BUSCAR DISPONIBILIDAD"; btnIcon.style.display = "inline";
+  }
+});
+
+const today = new Date().toISOString().split("T")[0];
+document.getElementById("r-fecha-in").min  = today;
+document.getElementById("r-fecha-out").min = today;
+document.getElementById("r-fecha-in").addEventListener("change", function() {
+  document.getElementById("r-fecha-out").min = this.value;
+});
+
+window.clearReservations = async function() {
+  if (!confirm("¿Limpiar TODAS las reservaciones? No se puede deshacer.")) return;
+  try {
+    const snap  = await getDocs(collection(db, "reservas"));
+    const batch = writeBatch(db);
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    showToast("🗑 Reservaciones eliminadas");
+  } catch { showToast("❌ Error al limpiar"); }
+};
+
+/* ══════════════════════════════════════════════════════════
+   🍞  TOAST + NAVBAR + FADE
+══════════════════════════════════════════════════════════ */
+let _tt;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove("show"), 4000);
+}
+window.showToast = showToast;
+
+window.addEventListener("scroll", () => {
+  document.getElementById("navbar").classList.toggle("scrolled", window.scrollY > 10);
+});
+document.getElementById("hamburger").addEventListener("click", () => {
+  document.getElementById("mobile-menu").classList.toggle("open");
+});
+window.closeMenu = function() { document.getElementById("mobile-menu").classList.remove("open"); };
+
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); }});
+}, { threshold: 0.1 });
+document.querySelectorAll(".fade-in").forEach(el => obs.observe(el));
+
+renderTestimonials();
+lucide.createIcons();
+</script>
+</body>
+</html>
