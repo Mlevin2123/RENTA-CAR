@@ -7,187 +7,135 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#004A99",
-            "primary-dark": "#003370",
-            danger: "#D32F2F",
-            "danger-dark": "#b71c1c",
-          }
-        }
-      }
+      theme: { extend: { colors: { primary:"#004A99","primary-dark":"#003370",danger:"#D32F2F","danger-dark":"#b71c1c" }}}
     }
   </script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
   <style>
-    * { scroll-behavior: smooth; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f4f6f8; }
+    *{scroll-behavior:smooth;box-sizing:border-box}
+    body{font-family:'Segoe UI',system-ui,sans-serif;background:#f4f6f8}
+    .topbar-text{animation:mb 36s linear infinite;white-space:nowrap;display:inline-block}
+    @keyframes mb{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+    #navbar{transition:box-shadow .3s}
+    #navbar.scrolled{box-shadow:0 2px 16px rgba(0,74,153,.15)}
+    .nav-link{position:relative;color:#333;font-weight:500;font-size:.9rem;transition:color .2s}
+    .nav-link::after{content:'';position:absolute;left:0;bottom:-4px;width:0;height:2px;background:#004A99;transition:width .25s}
+    .nav-link:hover{color:#004A99}
+    .nav-link:hover::after{width:100%}
+    .car-card{transition:transform .3s,box-shadow .3s}
+    .car-card:hover{transform:translateY(-6px);box-shadow:0 12px 32px rgba(0,74,153,.15)}
+    .input-field{width:100%;padding:.55rem .9rem;border:1px solid #ccd6e0;border-radius:.45rem;font-size:.875rem;background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
+    .input-field:focus{border-color:#004A99;box-shadow:0 0 0 3px rgba(0,74,153,.12)}
+    .input-field.error{border-color:#D32F2F;box-shadow:0 0 0 3px rgba(211,47,47,.1)}
+    .field-error{color:#D32F2F;font-size:.75rem;margin-top:.2rem;display:none}
+    #mobile-menu{transition:max-height .35s,opacity .35s;max-height:0;overflow:hidden;opacity:0}
+    #mobile-menu.open{max-height:400px;opacity:1}
+    #toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(40px);background:#1e293b;color:#fff;padding:.85rem 2rem;border-radius:999px;font-size:.875rem;font-weight:600;opacity:0;transition:all .4s;z-index:9999;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
+    .fade-in.visible{opacity:1;transform:translateY(0)}
+    .price-badge{background:#D32F2F;color:#fff;font-weight:700;font-size:.85rem;padding:.25rem .75rem;border-radius:999px}
+    .price-badge.consultar{background:#475569}
+    .spinner{width:20px;height:20px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .section-divider{width:60px;height:4px;background:#004A99;border-radius:999px;margin:.75rem auto 2rem}
+    .filter-tab{padding:.4rem 1.1rem;border-radius:999px;font-size:.8rem;font-weight:700;border:1.5px solid #d1d5db;background:white;color:#6b7280;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.05em}
+    .filter-tab:hover{border-color:#004A99;color:#004A99}
+    .filter-tab.active-tab{background:#004A99;color:white;border-color:#004A99}
+    .admin-nav-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem .85rem;border-radius:.5rem;background:#f1f5f9;border:1.5px solid #e2e8f0;color:#475569;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.03em}
+    .admin-nav-btn:hover{background:#004A99;border-color:#004A99;color:#fff}
 
-    /* TOP BAR */
-    .topbar-text { animation: mb 28s linear infinite; white-space: nowrap; display: inline-block; }
-    @keyframes mb { from{transform:translateX(100vw)} to{transform:translateX(-100%)} }
+    /* ── IMAGE SLIDER ── */
+    .slider-wrap{position:relative;overflow:hidden}
+    .slider-img{width:100%;height:100%;object-fit:cover;transition:transform .35s}
+    .slider-btn{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.45);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;z-index:2;transition:background .2s}
+    .slider-btn:hover{background:rgba(0,0,0,.7)}
+    .slider-btn.prev{left:6px}
+    .slider-btn.next{right:6px}
+    .slider-dots{display:flex;gap:5px;justify-content:center;padding:6px 0}
+    .s-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.2);cursor:pointer;transition:background .2s}
+    .s-dot.active{background:#004A99}
 
-    /* NAVBAR */
-    #navbar { transition: box-shadow .3s; }
-    #navbar.scrolled { box-shadow: 0 2px 16px rgba(0,74,153,.15); }
-    .nav-link { position:relative; color:#333; font-weight:500; font-size:.9rem; transition:color .2s; }
-    .nav-link::after { content:''; position:absolute; left:0; bottom:-4px; width:0; height:2px; background:#004A99; transition:width .25s; }
-    .nav-link:hover { color:#004A99; }
-    .nav-link:hover::after { width:100%; }
+    /* ── ADMIN OVERLAY ── */
+    #admin-overlay{display:none;position:fixed;inset:0;z-index:1000;background:#0f172a;overflow:hidden}
+    #admin-overlay.open{display:flex;flex-direction:column}
+    #login-screen{display:flex;align-items:center;justify-content:center;flex:1}
+    #admin-panel{display:none;flex:1;overflow:hidden}
+    #admin-panel.open{display:flex;flex-direction:column;height:100%}
 
-    /* CARDS */
-    .car-card { transition: transform .3s, box-shadow .3s; }
-    .car-card:hover { transform:translateY(-6px); box-shadow:0 12px 32px rgba(0,74,153,.15); }
+    /* Admin top bar */
+    .admin-topbar{background:#0b1426;border-bottom:1px solid #1e293b;padding:.75rem 1rem;display:flex;align-items:center;justify-between;gap:.75rem;flex-shrink:0}
 
-    /* FORM INPUTS */
-    .input-field {
-      width:100%; padding:.55rem .9rem; border:1px solid #ccd6e0;
-      border-radius:.45rem; font-size:.875rem; background:#fff;
-      transition:border-color .2s, box-shadow .2s; outline:none;
+    /* Admin layout */
+    .admin-body{display:flex;flex:1;overflow:hidden}
+
+    /* Sidebar */
+    #admin-sidebar{background:#0b1426;border-right:1px solid #1e293b;width:230px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;transition:transform .3s;z-index:20}
+    @media(max-width:767px){
+      #admin-sidebar{position:absolute;top:0;bottom:0;left:0;transform:translateX(-100%)}
+      #admin-sidebar.open{transform:translateX(0)}
+      .admin-topbar{justify-content:space-between}
     }
-    .input-field:focus { border-color:#004A99; box-shadow:0 0 0 3px rgba(0,74,153,.12); }
-    .input-field.error { border-color:#D32F2F; box-shadow:0 0 0 3px rgba(211,47,47,.1); }
-    .field-error { color:#D32F2F; font-size:.75rem; margin-top:.2rem; display:none; }
 
-    /* MOBILE MENU */
-    #mobile-menu { transition:max-height .35s, opacity .35s; max-height:0; overflow:hidden; opacity:0; }
-    #mobile-menu.open { max-height:400px; opacity:1; }
+    /* Admin content area */
+    #admin-content{flex:1;overflow-y:auto;background:#0f172a}
 
-    /* TOAST */
-    #toast {
-      position:fixed; bottom:2rem; left:50%; transform:translateX(-50%) translateY(40px);
-      background:#1e293b; color:#fff; padding:.85rem 2rem; border-radius:999px;
-      font-size:.875rem; font-weight:600; opacity:0; transition:all .4s; z-index:9999;
-      white-space:nowrap; pointer-events:none;
-    }
-    #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+    .admin-nav-link{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.75rem;color:#94a3b8;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .admin-nav-link:hover{background:rgba(255,255,255,.05);color:#fff}
+    .admin-nav-link.active{background:rgba(0,74,153,.25);color:#60a5fa}
+    .admin-table{width:100%;border-collapse:collapse}
+    .admin-table th{background:#1e293b;color:#94a3b8;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.75rem 1rem;text-align:left}
+    .admin-table td{padding:.85rem 1rem;border-bottom:1px solid #1e293b;font-size:.875rem;color:#e2e8f0;vertical-align:middle}
+    .admin-table tr:hover td{background:rgba(255,255,255,.025)}
+    .admin-card{background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:1.5rem}
+    .upload-zone{border:2px dashed #334155;border-radius:.75rem;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;background:#0f172a}
+    .upload-zone:hover{border-color:#004A99}
+    .upload-zone.dragover{border-color:#60a5fa;background:rgba(0,74,153,.1)}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:1rem}
+    .modal-bg.open{display:flex}
+    .modal-box{background:#1e293b;border:1px solid #334155;border-radius:1.25rem;width:100%;max-width:580px;max-height:92vh;overflow-y:auto}
+    .stat-card{background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:1.25rem 1.5rem}
+    .a-input{width:100%;padding:.6rem .9rem;background:#0f172a;border:1px solid #334155;border-radius:.6rem;color:#e2e8f0;font-size:.875rem;outline:none;transition:border-color .2s}
+    .a-input:focus{border-color:#004A99}
+    .a-input option{background:#0f172a}
+    .a-label{display:block;font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem}
+    .toggle-wrap{display:flex;align-items:center;gap:.75rem;cursor:pointer}
+    .toggle{width:44px;height:24px;background:#334155;border-radius:999px;position:relative;transition:background .3s;flex-shrink:0}
+    .toggle.on{background:#16a34a}
+    .toggle::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .3s}
+    .toggle.on::after{transform:translateX(20px)}
+    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.25rem;background:#004A99;color:#fff;border:none;border-radius:.6rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .2s}
+    .btn-primary:hover{background:#003370}
+    .btn-danger{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.25rem;background:#D32F2F;color:#fff;border:none;border-radius:.6rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .2s}
+    .btn-danger:hover{background:#b71c1c}
+    .btn-ghost{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.25rem;background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:.6rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-ghost:hover{background:#1e293b;color:#e2e8f0}
 
-    /* FADE */
-    .fade-in { opacity:0; transform:translateY(24px); transition:opacity .6s, transform .6s; }
-    .fade-in.visible { opacity:1; transform:translateY(0); }
+    /* TABLE SCROLL WRAPPER */
+    .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
-    /* BADGES */
-    .price-badge { background:#D32F2F; color:#fff; font-weight:700; font-size:.85rem; padding:.25rem .75rem; border-radius:999px; }
-
-    /* SPINNER */
-    .spinner { width:20px; height:20px; border:3px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; display:none; }
-    @keyframes spin { to{transform:rotate(360deg)} }
-
-    /* DIVIDER */
-    .section-divider { width:60px; height:4px; background:#004A99; border-radius:999px; margin:.75rem auto 2rem; }
-
-    /* FILTER TABS */
-    .filter-tab { padding:.4rem 1.1rem; border-radius:999px; font-size:.8rem; font-weight:700; border:1.5px solid #d1d5db; background:white; color:#6b7280; cursor:pointer; transition:all .2s; text-transform:uppercase; letter-spacing:.05em; }
-    .filter-tab:hover { border-color:#004A99; color:#004A99; }
-    .filter-tab.active-tab { background:#004A99; color:white; border-color:#004A99; }
-
-    /* ADMIN BUTTON NAVBAR */
-    .admin-nav-btn {
-      display:inline-flex; align-items:center; gap:.4rem;
-      padding:.4rem .85rem; border-radius:.5rem;
-      background:#f1f5f9; border:1.5px solid #e2e8f0;
-      color:#475569; font-size:.78rem; font-weight:700;
-      cursor:pointer; transition:all .2s; letter-spacing:.03em;
-    }
-    .admin-nav-btn:hover { background:#004A99; border-color:#004A99; color:#fff; }
-
-    /* ══ ADMIN PANEL ══ */
-    #admin-overlay {
-      display:none; position:fixed; inset:0; z-index:1000;
-      background:#0f172a; overflow-y:auto;
-    }
-    #admin-overlay.open { display:block; }
-
-    /* LOGIN SCREEN */
-    #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-    #admin-panel { display:none; }
-    #admin-panel.open { display:block; }
-
-    /* ADMIN NAV */
-    .admin-nav-link {
-      display:flex; align-items:center; gap:.75rem;
-      padding:.65rem 1rem; border-radius:.75rem; color:#94a3b8; font-size:.875rem; font-weight:500;
-      cursor:pointer; transition:all .2s;
-    }
-    .admin-nav-link:hover { background:rgba(255,255,255,.05); color:#fff; }
-    .admin-nav-link.active { background:rgba(0,74,153,.25); color:#60a5fa; }
-
-    /* ADMIN TABLE */
-    .admin-table { width:100%; border-collapse:collapse; }
-    .admin-table th { background:#1e293b; color:#94a3b8; font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:.75rem 1rem; text-align:left; }
-    .admin-table td { padding:.85rem 1rem; border-bottom:1px solid #1e293b; font-size:.875rem; color:#e2e8f0; vertical-align:middle; }
-    .admin-table tr:hover td { background:rgba(255,255,255,.025); }
-
-    /* ADMIN CARDS */
-    .admin-card { background:#1e293b; border:1px solid #334155; border-radius:1rem; padding:1.5rem; }
-
-    /* UPLOAD ZONE */
-    .upload-zone {
-      border:2px dashed #334155; border-radius:.75rem; padding:2rem; text-align:center;
-      cursor:pointer; transition:border-color .2s; background:#0f172a;
-    }
-    .upload-zone:hover { border-color:#004A99; }
-    .upload-zone.dragover { border-color:#60a5fa; background:rgba(0,74,153,.1); }
-
-    /* MODAL */
-    .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:2000; align-items:center; justify-content:center; padding:1rem; }
-    .modal-bg.open { display:flex; }
-    .modal-box { background:#1e293b; border:1px solid #334155; border-radius:1.25rem; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; }
-
-    /* STAT CARDS */
-    .stat-card { background:#1e293b; border:1px solid #334155; border-radius:1rem; padding:1.25rem 1.5rem; }
-
-    /* ADMIN FORM INPUTS */
-    .a-input {
-      width:100%; padding:.6rem .9rem; background:#0f172a; border:1px solid #334155;
-      border-radius:.6rem; color:#e2e8f0; font-size:.875rem; outline:none; transition:border-color .2s;
-    }
-    .a-input:focus { border-color:#004A99; }
-    .a-input option { background:#0f172a; }
-    .a-label { display:block; font-size:.75rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.35rem; }
-
-    /* TOGGLE */
-    .toggle-wrap { display:flex; align-items:center; gap:.75rem; cursor:pointer; }
-    .toggle { width:44px; height:24px; background:#334155; border-radius:999px; position:relative; transition:background .3s; flex-shrink:0; }
-    .toggle.on { background:#16a34a; }
-    .toggle::after { content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .3s; }
-    .toggle.on::after { transform:translateX(20px); }
-
-    /* BTN STYLES */
-    .btn-primary { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:#004A99; color:#fff; border:none; border-radius:.6rem; font-size:.85rem; font-weight:700; cursor:pointer; transition:background .2s; }
-    .btn-primary:hover { background:#003370; }
-    .btn-danger { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:#D32F2F; color:#fff; border:none; border-radius:.6rem; font-size:.85rem; font-weight:700; cursor:pointer; transition:background .2s; }
-    .btn-danger:hover { background:#b71c1c; }
-    .btn-ghost { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:transparent; color:#94a3b8; border:1px solid #334155; border-radius:.6rem; font-size:.85rem; font-weight:600; cursor:pointer; transition:all .2s; }
-    .btn-ghost:hover { background:#1e293b; color:#e2e8f0; }
-    .btn-green { display:inline-flex; align-items:center; gap:.5rem; padding:.55rem 1.25rem; background:#16a34a; color:#fff; border:none; border-radius:.6rem; font-size:.85rem; font-weight:700; cursor:pointer; transition:background .2s; }
-    .btn-green:hover { background:#15803d; }
+    /* IMG PREVIEW CHIPS */
+    .img-chip{position:relative;width:80px;height:56px;border-radius:.5rem;overflow:hidden;flex-shrink:0}
+    .img-chip img{width:100%;height:100%;object-fit:cover}
+    .img-chip button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
   </style>
 </head>
 <body class="text-gray-800">
 
-<!-- ══════════════════════════════════════
-     TOP BAR
-══════════════════════════════════════ -->
+<!-- TOP BAR -->
 <div class="bg-[#004A99] text-white text-sm py-2 overflow-hidden">
   <span class="topbar-text px-8 font-medium tracking-wide">
-    🚗 Renta Car Martínez &nbsp;·&nbsp; El Salvador's Premier Vehicle Rental &nbsp;·&nbsp;
+    🚗 Renta Car Martínez &nbsp;·&nbsp; San Antonio, San Miguel, El Salvador &nbsp;·&nbsp;
     Reserva en línea ahora &nbsp;·&nbsp; Flota moderna · Seguro incluido · Atención 24/7 &nbsp;·&nbsp;
-    📞 7890-1234 &nbsp;·&nbsp; ✉ reservas@rentacarmartinez.com &nbsp;&nbsp;&nbsp;
+    📞 7890-1234 &nbsp;·&nbsp; Pick Up · Sedán · Camionetas · SUV &nbsp;&nbsp;&nbsp;
     🚗 Renta Car Martínez &nbsp;·&nbsp; El Salvador's Premier Vehicle Rental
   </span>
 </div>
 
-<!-- ══════════════════════════════════════
-     NAVBAR
-══════════════════════════════════════ -->
+<!-- NAVBAR -->
 <nav id="navbar" class="bg-white sticky top-0 z-50 border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="flex items-center justify-between h-16">
-
-      <!-- LOGO -->
       <a href="#" class="flex items-center gap-2 select-none">
         <div class="w-9 h-9 bg-[#004A99] rounded-lg flex items-center justify-center">
           <span class="text-white font-black text-sm">RCM</span>
@@ -197,8 +145,6 @@
           <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest -mt-0.5">Rent a Car</div>
         </div>
       </a>
-
-      <!-- NAV LINKS (desktop) -->
       <div class="hidden md:flex items-center gap-7">
         <a href="#inicio"   class="nav-link">Inicio</a>
         <a href="#flota"    class="nav-link">Nuestra Flota</a>
@@ -206,18 +152,14 @@
         <a href="#tarifas"  class="nav-link">Tarifas</a>
         <a href="#contacto" class="nav-link">Contacto</a>
       </div>
-
-      <!-- RIGHT SIDE ACTIONS -->
       <div class="flex items-center gap-2">
-        <!-- ADMIN BUTTON — visible en navbar -->
         <button onclick="openAdmin()" class="admin-nav-btn hidden sm:inline-flex" title="Panel de Administración">
           <i data-lucide="settings" class="w-3.5 h-3.5"></i>
           <span>Admin</span>
         </button>
-
         <a href="tel:+50378901234"
           class="hidden sm:inline-flex items-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
-          <i data-lucide="phone" class="w-4 h-4"></i> Contáctanos (7890-1234)
+          <i data-lucide="phone" class="w-4 h-4"></i> 7890-1234
         </a>
         <button id="hamburger" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
           <i data-lucide="menu" class="w-5 h-5 text-gray-600"></i>
@@ -225,8 +167,6 @@
       </div>
     </div>
   </div>
-
-  <!-- MOBILE MENU -->
   <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-4">
     <div class="py-3 flex flex-col gap-1">
       <a href="#inicio"   class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Inicio</a>
@@ -234,36 +174,30 @@
       <a href="#reservar" class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Reservaciones</a>
       <a href="#tarifas"  class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Tarifas</a>
       <a href="#contacto" class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Contacto</a>
-      <button onclick="openAdmin();closeMenu()" class="mt-1 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-3 rounded-lg font-bold text-sm transition-colors">
+      <button onclick="openAdmin();closeMenu()" class="mt-1 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-3 rounded-lg font-bold text-sm">
         <i data-lucide="settings" class="w-4 h-4"></i> Panel Admin
       </button>
       <a href="tel:+50378901234" class="mt-1 flex items-center gap-2 bg-[#D32F2F] text-white py-2.5 px-3 rounded-lg font-bold text-sm">
-        <i data-lucide="phone" class="w-4 h-4"></i> Contáctanos
+        <i data-lucide="phone" class="w-4 h-4"></i> Llamar ahora
       </a>
     </div>
   </div>
 </nav>
 
-<!-- ══════════════════════════════════════
-     HERO
-══════════════════════════════════════ -->
-<section id="inicio" style="background:linear-gradient(to right,rgba(0,0,0,.65) 0%,rgba(0,74,153,.38) 55%,rgba(0,0,0,.5) 100%),url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2940') center/cover no-repeat;min-height:560px;">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-16 flex flex-col lg:flex-row items-center gap-10 min-h-[560px]">
+<!-- HERO + RESERVA -->
+<section id="inicio" style="background:linear-gradient(to right,rgba(0,0,0,.65),rgba(0,74,153,.38) 55%,rgba(0,0,0,.5)),url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2940') center/cover no-repeat;min-height:560px">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14 flex flex-col lg:flex-row items-center gap-10 min-h-[560px]">
     <div class="flex-1 text-white z-10">
       <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/25 px-4 py-1.5 rounded-full text-sm font-semibold mb-6">
-        <i data-lucide="map-pin" class="w-4 h-4 text-yellow-300"></i> El Salvador's Premier Vehicle Rental
+        <i data-lucide="map-pin" class="w-4 h-4 text-yellow-300"></i> San Antonio, San Miguel, El Salvador
       </div>
       <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-5 drop-shadow-lg">
         Alquila el auto<br><span class="text-yellow-300">de tus sueños</span><br>en El Salvador.
       </h1>
-      <p class="text-lg sm:text-2xl font-bold text-white/90 mb-8">Desde <span class="text-yellow-300">$35</span>/día · Seguro incluido · Entrega a domicilio</p>
+      <p class="text-lg sm:text-2xl font-bold text-white/90 mb-8">Desde <span class="text-yellow-300">$35</span>/día · Seguro incluido · Entrega disponible</p>
       <div class="flex flex-wrap gap-4">
-        <a href="#flota" class="inline-flex items-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold px-6 py-3 rounded-lg transition-all shadow-lg">
-          <i data-lucide="car" class="w-5 h-5"></i> Ver Flota
-        </a>
-        <a href="#reservar" class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur-sm text-white font-bold px-6 py-3 rounded-lg transition-all">
-          <i data-lucide="calendar" class="w-5 h-5"></i> Reservar Ahora
-        </a>
+        <a href="#flota"    class="inline-flex items-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold px-6 py-3 rounded-lg transition-all shadow-lg"><i data-lucide="car" class="w-5 h-5"></i> Ver Flota</a>
+        <a href="#reservar" class="inline-flex items-center gap-2 bg-white/15 hover:bg-white/25 border border-white/30 backdrop-blur-sm text-white font-bold px-6 py-3 rounded-lg transition-all"><i data-lucide="calendar" class="w-5 h-5"></i> Reservar Ahora</a>
       </div>
       <div class="mt-10 flex flex-wrap gap-6">
         <div class="flex items-center gap-2 text-white/80 text-sm"><i data-lucide="shield-check" class="w-5 h-5 text-yellow-300"></i> Seguro incluido</div>
@@ -276,18 +210,12 @@
     <div id="reservar" class="w-full lg:w-96 bg-[#004A99] rounded-2xl shadow-2xl overflow-hidden z-10">
       <div class="bg-[#003370] px-6 py-4">
         <h2 class="text-white font-black text-xl">Reserva tu Vehículo</h2>
-        <p class="text-blue-200 text-sm mt-0.5">Rápido, fácil y seguro</p>
+        <div class="flex items-center gap-1.5 mt-1">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-yellow-300"></i>
+          <p class="text-blue-200 text-xs font-semibold">San Antonio, San Miguel, El Salvador</p>
+        </div>
       </div>
       <form id="reserve-form" class="px-6 py-5 space-y-4 bg-white" novalidate>
-        <div>
-          <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Ciudad / Oficina</label>
-          <select id="r-ciudad" class="input-field">
-            <option value="">Selecciona ciudad…</option>
-            <option>San Salvador</option><option>Usulután</option>
-            <option>Santa Ana</option><option>San Miguel</option>
-          </select>
-          <p class="field-error" id="err-ciudad">Selecciona una ciudad.</p>
-        </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Fecha Recogida</label>
@@ -325,14 +253,8 @@
           <p class="field-error" id="err-tel">Ingresa tu teléfono.</p>
         </div>
         <div id="reserve-summary" class="hidden bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm">
-          <div class="flex justify-between font-semibold">
-            <span class="text-gray-600">Días reservados:</span>
-            <span id="s-days" class="text-[#004A99] font-bold">—</span>
-          </div>
-          <div class="flex justify-between font-semibold mt-1">
-            <span class="text-gray-600">Total estimado:</span>
-            <span id="s-total" class="text-[#D32F2F] font-bold text-base">—</span>
-          </div>
+          <div class="flex justify-between font-semibold"><span class="text-gray-600">Días:</span><span id="s-days" class="text-[#004A99] font-bold">—</span></div>
+          <div class="flex justify-between font-semibold mt-1"><span class="text-gray-600">Total est.:</span><span id="s-total" class="text-[#D32F2F] font-bold text-base">—</span></div>
         </div>
         <button type="submit" id="reserve-btn"
           class="w-full flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-black text-sm py-3.5 rounded-lg transition-all shadow-md uppercase tracking-wide">
@@ -346,12 +268,9 @@
   </div>
 </section>
 
-<!-- ══════════════════════════════════════
-     MAIN + SIDEBAR
-══════════════════════════════════════ -->
+<!-- MAIN CONTENT -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-14">
   <div class="flex flex-col lg:flex-row gap-10">
-
     <main class="flex-1 min-w-0">
 
       <!-- FLOTA -->
@@ -374,18 +293,20 @@
           <div class="section-divider"></div>
         </div>
         <div class="bg-white rounded-2xl shadow-md overflow-hidden border border-gray-100">
-          <table class="w-full text-sm">
-            <thead class="bg-[#004A99] text-white">
-              <tr>
-                <th class="text-left px-5 py-3.5 font-bold">Categoría</th>
-                <th class="text-center px-4 py-3.5 font-bold">Por Día</th>
-                <th class="text-center px-4 py-3.5 font-bold">Por Semana</th>
-                <th class="text-center px-4 py-3.5 font-bold">Por Mes</th>
-                <th class="text-center px-4 py-3.5 font-bold">Incluye</th>
-              </tr>
-            </thead>
-            <tbody id="rates-table" class="divide-y divide-gray-100"></tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="w-full text-sm">
+              <thead class="bg-[#004A99] text-white">
+                <tr>
+                  <th class="text-left px-5 py-3.5 font-bold whitespace-nowrap">Categoría</th>
+                  <th class="text-center px-4 py-3.5 font-bold whitespace-nowrap">Por Día</th>
+                  <th class="text-center px-4 py-3.5 font-bold whitespace-nowrap">Por Semana</th>
+                  <th class="text-center px-4 py-3.5 font-bold whitespace-nowrap">Por Mes</th>
+                  <th class="text-center px-4 py-3.5 font-bold whitespace-nowrap">Incluye</th>
+                </tr>
+              </thead>
+              <tbody id="rates-table" class="divide-y divide-gray-100"></tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -396,24 +317,22 @@
           <h2 class="text-3xl sm:text-4xl font-black text-gray-900 mt-1">CONTACTO</h2>
           <div class="section-divider"></div>
         </div>
-        <div class="grid sm:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
             <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="phone" class="w-6 h-6 text-[#004A99]"></i></div>
-            <h4 class="font-bold mb-1">Llámanos</h4>
-            <p class="text-gray-500 text-sm">7890-1234</p>
+            <h4 class="font-bold mb-1">Llámanos</h4><p class="text-gray-500 text-sm">7890-1234</p>
             <a href="tel:+50378901234" class="mt-3 inline-block text-sm font-bold text-[#004A99] hover:underline">Llamar ahora</a>
           </div>
           <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
             <div class="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="message-circle" class="w-6 h-6 text-green-600"></i></div>
-            <h4 class="font-bold mb-1">WhatsApp</h4>
-            <p class="text-gray-500 text-sm">Respuesta inmediata</p>
+            <h4 class="font-bold mb-1">WhatsApp</h4><p class="text-gray-500 text-sm">Respuesta inmediata</p>
             <a href="https://wa.me/50378901234?text=Hola,%20quiero%20rentar%20un%20carro" target="_blank" class="mt-3 inline-block text-sm font-bold text-green-600 hover:underline">Escribir ahora</a>
           </div>
           <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-            <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="mail" class="w-6 h-6 text-[#D32F2F]"></i></div>
-            <h4 class="font-bold mb-1">Email</h4>
-            <p class="text-gray-500 text-sm">reservas@rentacarmartinez.com</p>
-            <a href="mailto:reservas@rentacarmartinez.com" class="mt-3 inline-block text-sm font-bold text-[#D32F2F] hover:underline">Enviar email</a>
+            <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mx-auto mb-4"><i data-lucide="map-pin" class="w-6 h-6 text-[#D32F2F]"></i></div>
+            <h4 class="font-bold mb-1">Ubicación</h4>
+            <p class="text-gray-500 text-sm">San Antonio, San Miguel<br>El Salvador</p>
+            <a href="https://maps.google.com/?q=San+Miguel+El+Salvador" target="_blank" class="mt-3 inline-block text-sm font-bold text-[#D32F2F] hover:underline">Ver en mapa</a>
           </div>
         </div>
       </section>
@@ -427,9 +346,9 @@
           <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="shield-check" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Seguro incluido</p><p class="text-xs text-gray-500">Cobertura total sin costo extra</p></div></li>
           <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="route" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Km ilimitado</p><p class="text-xs text-gray-500">Maneja sin preocupaciones</p></div></li>
           <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="headphones" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Atención 24/7</p><p class="text-xs text-gray-500">Soporte en todo momento</p></div></li>
-          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Entrega a domicilio</p><p class="text-xs text-gray-500">Llevamos el auto donde estés</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="truck" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Entrega disponible</p><p class="text-xs text-gray-500">Llevamos el auto donde estés</p></div></li>
           <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="star" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Flota nueva</p><p class="text-xs text-gray-500">Modelos 2021–2024</p></div></li>
-          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="credit-card" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Sin depósitos ocultos</p><p class="text-xs text-gray-500">Precios claros desde el inicio</p></div></li>
+          <li class="flex items-center gap-3.5 px-5 py-3.5"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="credit-card" class="w-5 h-5 text-[#004A99]"></i></div><div><p class="font-bold text-sm">Sin cargos ocultos</p><p class="text-xs text-gray-500">Precios claros desde el inicio</p></div></li>
         </ul>
       </div>
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in">
@@ -437,14 +356,16 @@
         <div id="testimonials" class="divide-y divide-gray-100"></div>
       </div>
       <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden fade-in">
-        <div class="bg-[#004A99] px-5 py-3.5"><h3 class="text-white font-black text-base">Nuestras Ubicaciones</h3></div>
-        <div class="p-5 space-y-3">
-          <div class="flex items-start gap-3"><div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="map-pin" class="w-4 h-4 text-[#004A99]"></i></div><div><p class="font-bold text-sm">San Salvador</p><p class="text-xs text-gray-500">Col. Escalón, Av. Los Laureles #45<br>Lun–Sáb 7:00am–7:00pm</p></div></div>
-          <div class="flex items-start gap-3"><div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="map-pin" class="w-4 h-4 text-[#D32F2F]"></i></div><div><p class="font-bold text-sm">Usulután</p><p class="text-xs text-gray-500">4a Calle Ote. #112, Centro<br>Lun–Sáb 7:00am–6:00pm</p></div></div>
+        <div class="bg-[#004A99] px-5 py-3.5"><h3 class="text-white font-black text-base">Nuestra Ubicación</h3></div>
+        <div class="p-5">
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"><i data-lucide="map-pin" class="w-4 h-4 text-[#D32F2F]"></i></div>
+            <div><p class="font-bold text-sm">San Antonio, San Miguel</p><p class="text-xs text-gray-500">El Salvador<br>Lun–Sáb 7:00am–7:00pm</p></div>
+          </div>
         </div>
         <div class="rounded-b-2xl overflow-hidden">
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30737.034095246034!2d-89.24327427431638!3d13.69294419999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f6330f73b3df175%3A0xde4ae6d30cf12049!2sSan%20Salvador%2C%20El%20Salvador!5e0!3m2!1ses!2sus!4v1700000000000!5m2!1ses!2sus"
-            width="100%" height="220" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30949.034095246034!2d-88.17741!3d13.48201!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8f7b3e2a4d1234ab%3A0x123!2sSan+Miguel%2C+El+Salvador!5e0!3m2!1ses!2sus!4v1700000000000!5m2!1ses!2sus"
+            width="100%" height="200" style="border:0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
           </iframe>
         </div>
       </div>
@@ -478,7 +399,7 @@
           <div class="w-9 h-9 bg-[#004A99] rounded-lg flex items-center justify-center"><span class="text-white font-black text-sm">RCM</span></div>
           <div><div class="font-black text-white text-base">Martínez</div><div class="text-[10px] font-semibold text-blue-300 uppercase tracking-widest -mt-0.5">Rent a Car</div></div>
         </div>
-        <p class="text-sm text-gray-400 leading-relaxed">El Salvador's Premier Vehicle Rental. Flota moderna, precios justos.</p>
+        <p class="text-sm text-gray-400 leading-relaxed">San Antonio, San Miguel, El Salvador. Flota moderna, precios justos.</p>
       </div>
       <div>
         <h4 class="text-white font-bold mb-4 text-sm uppercase tracking-wider">Navegación</h4>
@@ -495,7 +416,7 @@
         <ul class="space-y-2 text-sm text-gray-400">
           <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-[#004A99]"></i> 7890-1234</li>
           <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-[#004A99]"></i> reservas@rentacarmartinez.com</li>
-          <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-[#004A99]"></i> San Salvador / Usulután</li>
+          <li class="flex items-center gap-2"><i data-lucide="map-pin" class="w-4 h-4 text-[#004A99]"></i> San Antonio, San Miguel, El Salvador</li>
           <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-[#004A99]"></i> Lun–Sáb 7:00am–7:00pm</li>
         </ul>
       </div>
@@ -512,24 +433,23 @@
       </div>
     </div>
     <div class="border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
-      <span>© 2025 Renta Car Martínez. Todos los derechos reservados.</span>
+      <span>© 2025 Renta Car Martínez — San Antonio, San Miguel, El Salvador. Todos los derechos reservados.</span>
       <span class="text-gray-700">Powered by Firebase</span>
     </div>
   </div>
 </footer>
 
-<!-- Flotante WhatsApp -->
+<!-- WhatsApp flotante -->
 <a href="https://wa.me/50378901234?text=Hola,%20quiero%20rentar%20un%20carro" target="_blank"
   class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110">
   <i data-lucide="message-circle" class="w-7 h-7"></i>
 </a>
 
-<!-- Toast -->
 <div id="toast"></div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     ██████████  PANEL DE ADMINISTRADOR  ██████████
-══════════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════════
+     PANEL ADMINISTRADOR
+══════════════════════════════════════════════════════ -->
 <div id="admin-overlay">
 
   <!-- LOGIN -->
@@ -544,18 +464,10 @@
       </div>
       <div class="admin-card">
         <div class="space-y-4">
-          <div>
-            <label class="a-label">Correo electrónico</label>
-            <input type="email" id="login-user" class="a-input" placeholder="admin@tucorreo.com" />
-          </div>
-          <div>
-            <label class="a-label">Contraseña</label>
-            <input type="password" id="login-pass" class="a-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
-          </div>
+          <div><label class="a-label">Correo electrónico</label><input type="email" id="login-user" class="a-input" placeholder="admin@tucorreo.com" /></div>
+          <div><label class="a-label">Contraseña</label><input type="password" id="login-pass" class="a-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
           <p id="login-error" class="text-red-400 text-sm text-center hidden">Correo o contraseña incorrectos.</p>
-          <button onclick="doLogin()" class="w-full btn-primary justify-center py-3 text-base" id="login-btn">
-            Iniciar sesión
-          </button>
+          <button onclick="doLogin()" id="login-btn" class="w-full btn-primary justify-center py-3 text-base">Iniciar sesión</button>
         </div>
       </div>
       <button onclick="closeAdmin()" class="mt-4 w-full text-slate-600 hover:text-slate-400 text-sm transition-colors">← Volver al sitio</button>
@@ -564,21 +476,32 @@
 
   <!-- PANEL PRINCIPAL -->
   <div id="admin-panel">
-    <div class="flex h-screen overflow-hidden">
+    <!-- TOP BAR ADMIN -->
+    <div class="admin-topbar">
+      <div class="flex items-center gap-3">
+        <!-- Hamburger en móvil -->
+        <button id="sidebar-toggle" onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+        <div class="w-7 h-7 bg-[#004A99] rounded-lg flex items-center justify-center">
+          <span class="text-white font-black text-[10px]">RCM</span>
+        </div>
+        <span class="text-white font-bold text-sm hidden sm:block">Admin Panel</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="admin-email-label" class="text-slate-400 text-xs hidden sm:block"></span>
+        <button onclick="closeAdmin()" class="btn-ghost text-xs py-1.5 px-3"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Sitio</span></button>
+        <button onclick="doLogout()" class="btn-danger text-xs py-1.5 px-3"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Salir</span></button>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="admin-body relative">
+      <!-- Overlay para cerrar sidebar en móvil -->
+      <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/50 z-10 md:hidden"></div>
 
       <!-- SIDEBAR -->
-      <aside class="w-64 flex-shrink-0 bg-[#0b1426] border-r border-slate-800 flex flex-col overflow-y-auto">
-        <div class="px-5 py-5 border-b border-slate-800">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 bg-[#004A99] rounded-lg flex items-center justify-center">
-              <span class="text-white font-black text-xs">RCM</span>
-            </div>
-            <div>
-              <div class="text-white font-black text-sm">Admin Panel</div>
-              <div class="text-slate-500 text-[10px]">Martínez Rent a Car</div>
-            </div>
-          </div>
-        </div>
+      <aside id="admin-sidebar">
         <nav class="flex-1 px-3 py-4 space-y-1">
           <div class="admin-nav-link active" onclick="showTab('dashboard',this)">
             <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
@@ -593,105 +516,85 @@
             <i data-lucide="calendar-check" class="w-4 h-4"></i> Reservaciones
           </div>
         </nav>
-        <div class="px-3 py-4 border-t border-slate-800">
-          <button onclick="doLogout()" class="admin-nav-link w-full text-red-400 hover:text-red-300">
-            <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar sesión
-          </button>
-        </div>
       </aside>
 
       <!-- CONTENT -->
-      <main class="flex-1 overflow-y-auto bg-[#0f172a]">
+      <main id="admin-content">
 
-        <!-- ─── DASHBOARD ─── -->
-        <div id="tab-dashboard" class="p-6 space-y-6">
+        <!-- ── DASHBOARD ── -->
+        <div id="tab-dashboard" class="p-4 sm:p-6 space-y-6">
           <div>
-            <h2 class="text-2xl font-black text-white mb-1">Dashboard</h2>
+            <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Dashboard</h2>
             <p class="text-slate-400 text-sm">Resumen general del negocio</p>
           </div>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="stat-card">
-              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Total Vehículos</div>
-              <div class="text-3xl font-black text-white" id="d-total">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Disponibles</div>
-              <div class="text-3xl font-black text-green-400" id="d-avail">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Categorías</div>
-              <div class="text-3xl font-black text-blue-400" id="d-cats">0</div>
-            </div>
-            <div class="stat-card">
-              <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Reservaciones</div>
-              <div class="text-3xl font-black text-yellow-400" id="d-reserv">0</div>
-            </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Vehículos</div><div class="text-2xl sm:text-3xl font-black text-white" id="d-total">0</div></div>
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Disponibles</div><div class="text-2xl sm:text-3xl font-black text-green-400" id="d-avail">0</div></div>
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Categorías</div><div class="text-2xl sm:text-3xl font-black text-blue-400" id="d-cats">0</div></div>
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Reservas</div><div class="text-2xl sm:text-3xl font-black text-yellow-400" id="d-reserv">0</div></div>
           </div>
           <div class="admin-card">
-            <h3 class="text-white font-bold mb-4 flex items-center gap-2">
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2 text-sm sm:text-base">
               <i data-lucide="car" class="w-4 h-4 text-[#004A99]"></i> Vehículos Recientes
             </h3>
             <div id="d-vehicles-preview" class="space-y-3"></div>
-            <button onclick="showTab('vehicles',null)" class="mt-4 btn-primary text-sm">Ver todos →</button>
+            <button onclick="showTab('vehicles',null)" class="mt-4 btn-primary text-xs sm:text-sm">Ver todos →</button>
           </div>
         </div>
 
-        <!-- ─── VEHÍCULOS ─── -->
-        <div id="tab-vehicles" class="p-6 space-y-6 hidden">
-          <div class="flex items-center justify-between">
+        <!-- ── VEHÍCULOS ── -->
+        <div id="tab-vehicles" class="p-4 sm:p-6 space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 class="text-2xl font-black text-white mb-1">Vehículos</h2>
+              <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Vehículos</h2>
               <p class="text-slate-400 text-sm">Gestiona tu flota completa</p>
             </div>
-            <button onclick="openVehicleModal()" class="btn-primary">
+            <button onclick="openVehicleModal()" class="btn-primary self-start sm:self-auto">
               <i data-lucide="plus" class="w-4 h-4"></i> Agregar Vehículo
             </button>
           </div>
-          <div class="admin-card overflow-hidden">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Imagen</th><th>Nombre</th><th>Categoría</th>
-                  <th>Precio/día</th><th>Estado</th><th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody id="vehicles-table"></tbody>
-            </table>
+          <div class="admin-card p-0 overflow-hidden">
+            <div class="table-scroll">
+              <table class="admin-table">
+                <thead><tr><th>Imagen</th><th>Nombre</th><th class="hidden md:table-cell">Categoría</th><th>Precio/día</th><th class="hidden sm:table-cell">Estado</th><th>Acciones</th></tr></thead>
+                <tbody id="vehicles-table"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
-        <!-- ─── CATEGORÍAS ─── -->
-        <div id="tab-categories" class="p-6 space-y-6 hidden">
-          <div class="flex items-center justify-between">
+        <!-- ── CATEGORÍAS ── -->
+        <div id="tab-categories" class="p-4 sm:p-6 space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 class="text-2xl font-black text-white mb-1">Categorías</h2>
+              <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Categorías</h2>
               <p class="text-slate-400 text-sm">Define los tipos de vehículos</p>
             </div>
-            <button onclick="openCatModal()" class="btn-primary">
+            <button onclick="openCatModal()" class="btn-primary self-start sm:self-auto">
               <i data-lucide="plus" class="w-4 h-4"></i> Nueva Categoría
             </button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="categories-grid"></div>
         </div>
 
-        <!-- ─── RESERVACIONES ─── -->
-        <div id="tab-reservations" class="p-6 space-y-6 hidden">
-          <div class="flex items-center justify-between">
+        <!-- ── RESERVACIONES ── -->
+        <div id="tab-reservations" class="p-4 sm:p-6 space-y-6 hidden">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 class="text-2xl font-black text-white mb-1">Reservaciones</h2>
+              <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Reservaciones</h2>
               <p class="text-slate-400 text-sm">Solicitudes recibidas</p>
             </div>
-            <button onclick="clearReservations()" class="btn-ghost text-sm">
+            <button onclick="clearReservations()" class="btn-ghost text-xs sm:text-sm self-start sm:self-auto">
               <i data-lucide="trash-2" class="w-4 h-4"></i> Limpiar todo
             </button>
           </div>
-          <div class="admin-card overflow-hidden">
-            <table class="admin-table">
-              <thead>
-                <tr><th>Fecha</th><th>Nombre</th><th>Teléfono</th><th>Ciudad</th><th>Vehículo</th><th>Días</th><th>WA</th></tr>
-              </thead>
-              <tbody id="reservations-table"></tbody>
-            </table>
+          <div class="admin-card p-0 overflow-hidden">
+            <div class="table-scroll">
+              <table class="admin-table">
+                <thead><tr><th class="whitespace-nowrap">Fecha</th><th>Nombre</th><th class="hidden sm:table-cell">Teléfono</th><th class="hidden md:table-cell">Tipo</th><th>Días</th><th>WA</th></tr></thead>
+                <tbody id="reservations-table"></tbody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -703,44 +606,45 @@
 <!-- ══ MODAL: VEHÍCULO ══ -->
 <div class="modal-bg" id="vehicle-modal">
   <div class="modal-box">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700 sticky top-0 bg-[#1e293b] z-10">
       <h3 class="text-white font-black text-lg" id="vm-title">Agregar Vehículo</h3>
-      <button onclick="closeVehicleModal()" class="text-slate-400 hover:text-white transition-colors">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+      <button onclick="closeVehicleModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-    <div class="px-6 py-5 space-y-4">
+    <div class="px-5 py-5 space-y-4">
+
+      <!-- IMÁGENES MÚLTIPLES -->
       <div>
-        <label class="a-label">Imagen del Vehículo</label>
+        <label class="a-label">Imágenes del Vehículo</label>
+        <div id="imgs-preview" class="flex flex-wrap gap-2 mb-3"></div>
         <div class="upload-zone" id="upload-zone" onclick="document.getElementById('img-file').click()"
           ondragover="event.preventDefault();this.classList.add('dragover')"
           ondragleave="this.classList.remove('dragover')"
           ondrop="handleDrop(event)">
           <div id="upload-placeholder">
-            <i data-lucide="cloud-upload" class="w-10 h-10 text-slate-500 mx-auto mb-2"></i>
-            <p class="text-slate-400 text-sm"><span class="text-blue-400 font-semibold">Click para subir</span> o arrastra aquí</p>
-            <p class="text-slate-600 text-xs mt-1">PNG, JPG, WEBP — Se sube automáticamente a Cloudinary</p>
+            <i data-lucide="cloud-upload" class="w-8 h-8 text-slate-500 mx-auto mb-2"></i>
+            <p class="text-slate-400 text-sm"><span class="text-blue-400 font-semibold">Click</span> o arrastra para subir</p>
+            <p class="text-slate-600 text-xs mt-1">PNG, JPG, WEBP — Subida automática a Cloudinary</p>
           </div>
-          <div id="upload-loading" class="hidden">
-            <div class="spinner mx-auto" style="display:block;border-top-color:#004A99;border-color:rgba(0,74,153,.3)"></div>
-            <p class="text-slate-400 text-sm mt-2">Subiendo imagen…</p>
+          <div id="upload-loading" class="hidden text-center">
+            <div class="spinner mx-auto" style="display:block;border-top-color:#60a5fa;border-color:rgba(96,165,250,.3)"></div>
+            <p class="text-slate-400 text-sm mt-2">Subiendo…</p>
           </div>
-          <div id="upload-preview" class="hidden">
-            <img id="preview-img" class="w-full h-40 object-cover rounded-lg" src="" alt="preview" />
-            <button onclick="event.stopPropagation();clearImg()" class="mt-2 text-red-400 text-xs font-bold hover:text-red-300">✕ Quitar imagen</button>
-          </div>
-          <input type="file" id="img-file" accept="image/*" class="hidden" onchange="uploadImg(this)" />
+          <input type="file" id="img-file" accept="image/*" class="hidden" onchange="uploadImg(this)" multiple />
         </div>
         <p id="img-error" class="text-red-400 text-xs mt-1 hidden"></p>
         <div class="mt-2">
-          <label class="a-label">O pega URL de imagen directamente</label>
-          <input type="url" id="vm-img-url" class="a-input" placeholder="https://..." oninput="previewFromUrl(this.value)" />
+          <label class="a-label">O pega URL directamente</label>
+          <div class="flex gap-2">
+            <input type="url" id="vm-img-url" class="a-input flex-1" placeholder="https://..." />
+            <button type="button" onclick="addUrlImg()" class="btn-primary text-xs px-3 py-1.5 flex-shrink-0">+ Agregar</button>
+          </div>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-4">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="a-label">Nombre del Vehículo *</label>
-          <input type="text" id="vm-name" class="a-input" placeholder="Ej: Toyota Corolla 2023" />
+          <input type="text" id="vm-name" class="a-input" placeholder="Ej: Toyota Hilux 2023" />
         </div>
         <div>
           <label class="a-label">Categoría *</label>
@@ -749,8 +653,8 @@
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="a-label">Precio por Día (USD) *</label>
-          <input type="number" id="vm-price" class="a-input" placeholder="45" min="1" />
+          <label class="a-label">Precio/Día (USD) — Vacío = Consultar</label>
+          <input type="number" id="vm-price" class="a-input" placeholder="Ej: 45 — opcional" min="1" />
         </div>
         <div>
           <label class="a-label">Pasajeros</label>
@@ -760,24 +664,16 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="a-label">Transmisión</label>
-          <select id="vm-trans" class="a-input">
-            <option value="Automático">Automático</option>
-            <option value="Manual">Manual</option>
-          </select>
+          <select id="vm-trans" class="a-input"><option>Automático</option><option>Manual</option></select>
         </div>
         <div>
           <label class="a-label">Combustible</label>
-          <select id="vm-fuel" class="a-input">
-            <option value="Gasolina">Gasolina</option>
-            <option value="Diesel">Diesel</option>
-            <option value="Híbrido">Híbrido</option>
-            <option value="Eléctrico">Eléctrico</option>
-          </select>
+          <select id="vm-fuel" class="a-input"><option>Gasolina</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select>
         </div>
       </div>
       <div>
         <label class="a-label">Descripción</label>
-        <input type="text" id="vm-desc" class="a-input" placeholder="Ej: Económico y eficiente para la ciudad" />
+        <input type="text" id="vm-desc" class="a-input" placeholder="Breve descripción del vehículo" />
       </div>
       <div>
         <label class="toggle-wrap">
@@ -787,10 +683,10 @@
       </div>
       <p id="vm-error" class="text-red-400 text-sm hidden"></p>
     </div>
-    <div class="px-6 pb-5 flex gap-3 justify-end">
+    <div class="px-5 pb-5 flex gap-3 justify-end sticky bottom-0 bg-[#1e293b] border-t border-slate-700 pt-3">
       <button onclick="closeVehicleModal()" class="btn-ghost">Cancelar</button>
       <button onclick="saveVehicle()" class="btn-primary">
-        <i data-lucide="save" class="w-4 h-4"></i> <span id="vm-save-text">Guardar Vehículo</span>
+        <i data-lucide="save" class="w-4 h-4"></i> <span id="vm-save-text">Guardar</span>
       </button>
     </div>
   </div>
@@ -799,63 +695,49 @@
 <!-- ══ MODAL: CATEGORÍA ══ -->
 <div class="modal-bg" id="cat-modal">
   <div class="modal-box max-w-sm">
-    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
       <h3 class="text-white font-black text-lg" id="cm-title">Nueva Categoría</h3>
       <button onclick="closeCatModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-    <div class="px-6 py-5 space-y-4">
-      <div>
-        <label class="a-label">Nombre de la Categoría *</label>
-        <input type="text" id="cm-name" class="a-input" placeholder="Ej: Camioneta, Crossover…" />
-      </div>
+    <div class="px-5 py-5 space-y-4">
+      <div><label class="a-label">Nombre *</label><input type="text" id="cm-name" class="a-input" placeholder="Pick Up, Sedán, Camioneta…" /></div>
       <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="a-label">Precio base/día (USD)</label>
-          <input type="number" id="cm-price" class="a-input" placeholder="50" min="1" />
-        </div>
-        <div>
-          <label class="a-label">Precio semana</label>
-          <input type="number" id="cm-week" class="a-input" placeholder="300" min="1" />
-        </div>
+        <div><label class="a-label">Precio/día (USD)</label><input type="number" id="cm-price" class="a-input" placeholder="50" min="1" /></div>
+        <div><label class="a-label">Precio semana</label><input type="number" id="cm-week" class="a-input" placeholder="300" min="1" /></div>
       </div>
-      <div>
-        <label class="a-label">Lo que incluye</label>
-        <input type="text" id="cm-inc" class="a-input" placeholder="Seguro · Km ilim." />
-      </div>
+      <div><label class="a-label">Lo que incluye</label><input type="text" id="cm-inc" class="a-input" placeholder="Seguro · Km ilim." /></div>
       <p id="cm-error" class="text-red-400 text-sm hidden"></p>
     </div>
-    <div class="px-6 pb-5 flex gap-3 justify-end">
+    <div class="px-5 pb-5 flex gap-3 justify-end">
       <button onclick="closeCatModal()" class="btn-ghost">Cancelar</button>
       <button onclick="saveCat()" class="btn-primary"><i data-lucide="save" class="w-4 h-4"></i> Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     FIREBASE + LÓGICA PRINCIPAL
-══════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════
+     FIREBASE + LÓGICA
+══════════════════════════════════════════════════ -->
 <script type="module">
-/* ══════════════════════════════════════════════════════════
-   ⚙️  CONFIGURACIÓN GENERAL DEL SITIO
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   ⚙️  CONFIGURACIÓN
+══════════════════════════════════════════════════ */
 const CFG = {
   whatsapp:     "50378901234",
+  location:     "San Antonio, San Miguel, El Salvador",
   cloudName:    "dt9xgkf8l",
   uploadPreset: "Ferreteria",
 };
 
-/* ══════════════════════════════════════════════════════════
-   🔥  FIREBASE — Configuración real de tu proyecto
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   🔥  FIREBASE
+══════════════════════════════════════════════════ */
 import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAnalytics }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-import { getAuth, signInWithEmailAndPassword,
-         signOut, onAuthStateChanged }
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
                            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc,
-         addDoc, updateDoc, deleteDoc,
-         onSnapshot, query, orderBy,
-         serverTimestamp, writeBatch, getDocs }
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+         onSnapshot, query, orderBy, serverTimestamp, writeBatch, getDocs }
                            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -873,51 +755,104 @@ const analytics = getAnalytics(app);
 const auth      = getAuth(app);
 const db        = getFirestore(app);
 
-/* ══════════════════════════════════════════════════════════
-   📦  ESTADO EN MEMORIA (lleno desde Firestore en tiempo real)
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   📦  ESTADO EN MEMORIA
+══════════════════════════════════════════════════ */
 let vehicles         = [];
 let categories       = [];
 let reservations     = [];
 let editingVehicleId = null;
 let editingCatId     = null;
-let pendingImgUrl    = null;
+let pendingImgs      = [];   // array de URLs (múltiples imágenes)
 let currentFilter    = "todos";
+let seeded           = false;
 
-/* ══════════════════════════════════════════════════════════
-   🔔  LISTENERS EN TIEMPO REAL — Firestore
-══════════════════════════════════════════════════════════ */
-function initRealtimeListeners() {
-  // Vehículos — actualiza sitio público y admin en tiempo real
-  onSnapshot(query(collection(db, "autos"), orderBy("nombre")), snap => {
-    vehicles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderCars();
-    renderFilterTabs();
-    updatePublicStats();
-    refreshAdminData();
+/* ══════════════════════════════════════════════════
+   🌱  DATOS SEMILLA — se cargan automáticamente
+       la primera vez que las colecciones están vacías
+══════════════════════════════════════════════════ */
+const SEED_CATS = [
+  { nombre:"Sedán",        precioDia:42, precioSemana:250, incluye:"Seguro · Km ilim. · A/C" },
+  { nombre:"Pick Up",      precioDia:62, precioSemana:370, incluye:"Seguro · Km ilim. · 4×4" },
+  { nombre:"Camioneta",    precioDia:55, precioSemana:330, incluye:"Seguro · Km ilim. · Carga" },
+  { nombre:"SUV",          precioDia:75, precioSemana:450, incluye:"Seguro · Km ilim. · GPS" },
+  { nombre:"Económico",    precioDia:35, precioSemana:200, incluye:"Seguro · Km ilim." },
+];
+
+const SEED_AUTOS = [
+  { nombre:"Toyota Corolla 2023",   categoria:"Sedán",     precio:45,   pasajeros:5, transmision:"Automático", combustible:"Gasolina", descripcion:"Cómodo y económico para la ciudad y carretera.",    disponible:true,  imagenes:["https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=900","https://images.unsplash.com/photo-1494976388531-d1058494cdd8?q=80&w=900"] },
+  { nombre:"Honda Civic 2022",      categoria:"Sedán",     precio:42,   pasajeros:5, transmision:"Automático", combustible:"Gasolina", descripcion:"Deportivo y moderno con excelente rendimiento.",     disponible:true,  imagenes:["https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?q=80&w=900"] },
+  { nombre:"Nissan Sentra 2023",    categoria:"Sedán",     precio:null, pasajeros:5, transmision:"Automático", combustible:"Gasolina", descripcion:"Elegante y eficiente. Precio especial disponible.",  disponible:true,  imagenes:["https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=900"] },
+  { nombre:"Toyota Hilux 2023",     categoria:"Pick Up",   precio:65,   pasajeros:5, transmision:"Automático", combustible:"Diesel",   descripcion:"La pick up más vendida. Ideal para trabajo y campo.",disponible:true,  imagenes:["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=900","https://images.unsplash.com/photo-1544636331-e26879cd4d9b?q=80&w=900"] },
+  { nombre:"Ford Ranger 2023",      categoria:"Pick Up",   precio:60,   pasajeros:5, transmision:"Manual",     combustible:"Diesel",   descripcion:"Potente y versátil para cualquier terreno.",          disponible:true,  imagenes:["https://images.unsplash.com/photo-1564978786576-2c77501dd7a1?q=80&w=900"] },
+  { nombre:"Mitsubishi L200 2022",  categoria:"Camioneta", precio:55,   pasajeros:5, transmision:"Manual",     combustible:"Diesel",   descripcion:"Robusta camioneta japonesa de trabajo y aventura.",   disponible:true,  imagenes:["https://images.unsplash.com/photo-1583267746897-2cf415887172?q=80&w=900"] },
+  { nombre:"Isuzu D-Max 2023",      categoria:"Camioneta", precio:58,   pasajeros:5, transmision:"Automático", combustible:"Diesel",   descripcion:"Tecnología japonesa para el trabajo más exigente.",   disponible:true,  imagenes:["https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=900"] },
+  { nombre:"Mazda BT-50 2022",      categoria:"Camioneta", precio:null, pasajeros:5, transmision:"Automático", combustible:"Diesel",   descripcion:"Diseño moderno y gran capacidad de carga.",           disponible:true,  imagenes:["https://images.unsplash.com/photo-1506629082955-511b1aa562c8?q=80&w=900"] },
+  { nombre:"Toyota RAV4 2023",      categoria:"SUV",       precio:75,   pasajeros:5, transmision:"Automático", combustible:"Híbrido",  descripcion:"SUV híbrida con máxima comodidad y eficiencia.",      disponible:true,  imagenes:["https://images.unsplash.com/photo-1617469767827-d7b2c90e4ef2?q=80&w=900","https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=900"] },
+  { nombre:"Toyota Land Cruiser",   categoria:"SUV",       precio:90,   pasajeros:8, transmision:"Automático", combustible:"Diesel",   descripcion:"El rey del off-road para aventuras extremas.",        disponible:true,  imagenes:["https://images.unsplash.com/photo-1601362840469-51e4d8d58785?q=80&w=900"] },
+  { nombre:"Hyundai Tucson 2022",   categoria:"SUV",       precio:null, pasajeros:5, transmision:"Automático", combustible:"Gasolina", descripcion:"Crossover moderno con tecnología de punta.",          disponible:true,  imagenes:["https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?q=80&w=900"] },
+  { nombre:"Suzuki Jimny 2023",     categoria:"SUV",       precio:70,   pasajeros:4, transmision:"Manual",     combustible:"Gasolina", descripcion:"Compacto todo terreno con carácter aventurero.",      disponible:false, imagenes:["https://images.unsplash.com/photo-1625047509168-a7026f36de04?q=80&w=900"] },
+  { nombre:"Toyota Yaris 2023",     categoria:"Económico", precio:35,   pasajeros:5, transmision:"Automático", combustible:"Gasolina", descripcion:"El compacto perfecto para moverse en la ciudad.",     disponible:true,  imagenes:["https://images.unsplash.com/photo-1609521263047-f8f205293f24?q=80&w=900"] },
+  { nombre:"Kia Picanto 2023",      categoria:"Económico", precio:32,   pasajeros:5, transmision:"Manual",     combustible:"Gasolina", descripcion:"Ultra económico en combustible, ideal para la ciudad.",disponible:true,  imagenes:["https://images.unsplash.com/photo-1555215695-3004980ad54e?q=80&w=900"] },
+];
+
+async function seedDataIfEmpty() {
+  if (seeded) return;
+  try {
+    const [catSnap, autoSnap] = await Promise.all([
+      getDocs(collection(db, "categorias")),
+      getDocs(collection(db, "autos")),
+    ]);
+    if (catSnap.empty && autoSnap.empty) {
+      seeded = true;
+      const batch = writeBatch(db);
+      SEED_CATS.forEach(c => batch.set(doc(collection(db,"categorias")), c));
+      await batch.commit();
+      const batch2 = writeBatch(db);
+      SEED_AUTOS.forEach(a => batch2.set(doc(collection(db,"autos")), a));
+      await batch2.commit();
+      showToast("✅ Datos de muestra cargados automáticamente");
+    } else {
+      seeded = true;
+    }
+  } catch { /* sin permisos todavía — ok */ }
+}
+
+/* ══════════════════════════════════════════════════
+   🔔  LISTENERS EN TIEMPO REAL
+══════════════════════════════════════════════════ */
+function initListeners() {
+  onSnapshot(query(collection(db,"autos"), orderBy("nombre")), snap => {
+    vehicles = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderCars(); renderFilterTabs(); updatePublicStats(); refreshAdminData();
   });
-
-  // Categorías
-  onSnapshot(query(collection(db, "categorias"), orderBy("nombre")), snap => {
-    categories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderRates();
-    renderFilterTabs();
-    updatePublicStats();
-    refreshAdminData();
+  onSnapshot(query(collection(db,"categorias"), orderBy("nombre")), snap => {
+    categories = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    renderRates(); renderFilterTabs(); updatePublicStats(); refreshAdminData();
   });
-
-  // Reservaciones (más recientes primero)
-  onSnapshot(query(collection(db, "reservas"), orderBy("fecha", "desc")), snap => {
-    reservations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  onSnapshot(query(collection(db,"reservas"), orderBy("fecha","desc")), snap => {
+    reservations = snap.docs.map(d => ({ id:d.id, ...d.data() }));
     refreshAdminData();
   });
 }
 
-initRealtimeListeners();
+initListeners();
+seedDataIfEmpty();
 
-/* ══════════════════════════════════════════════════════════
-   🌐  SITIO PÚBLICO — RENDER
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   🖼️  HELPERS: IMAGEN PRINCIPAL DEL VEHÍCULO
+   Soporta imagenes:[] (nuevo) e imagen:string (legado)
+══════════════════════════════════════════════════ */
+function getImgs(v) {
+  if (v.imagenes && v.imagenes.length) return v.imagenes;
+  if (v.imagen) return [v.imagen];
+  return ["https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=900"];
+}
+const FALLBACK = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600";
+
+/* ══════════════════════════════════════════════════
+   🚗  RENDER FLOTA PÚBLICA
+══════════════════════════════════════════════════ */
 function renderCars() {
   const grid = document.getElementById("car-grid");
   const list = currentFilter === "todos"
@@ -927,64 +862,103 @@ function renderCars() {
   if (!list.length) {
     grid.innerHTML = `<div class="col-span-full text-center py-16 text-gray-400">
       <div class="text-5xl mb-3">🚗</div>
-      <p class="font-bold">No hay vehículos en esta categoría.</p></div>`;
+      <p class="font-bold">No hay vehículos disponibles en esta categoría.</p></div>`;
     return;
   }
-  grid.innerHTML = list.map(v => `
-    <article class="car-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-      <div class="relative aspect-[16/10] overflow-hidden bg-gray-100">
-        <img src="${v.imagen || ''}" alt="${v.nombre}" loading="lazy"
-          onerror="this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600'"
-          class="w-full h-full object-cover hover:scale-105 transition-transform duration-700" />
-        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
-        <span class="absolute top-3 left-3 bg-[#004A99]/90 text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">${v.categoria || ''}</span>
-        <span class="price-badge absolute top-3 right-3">$${v.precio}/día</span>
+
+  grid.innerHTML = list.map(v => {
+    const imgs   = getImgs(v);
+    const multi  = imgs.length > 1;
+    const precio = v.precio ? `$${v.precio}/día` : "Consultar precio";
+    const priceClass = v.precio ? "price-badge" : "price-badge consultar";
+
+    const sliderHtml = `
+      <div class="slider-wrap aspect-[16/10]" id="sl-${v.id}" data-imgs='${JSON.stringify(imgs)}' data-idx="0">
+        <img class="slider-img" src="${imgs[0]}" alt="${v.nombre}"
+          onerror="this.src='${FALLBACK}'" loading="lazy" />
+        ${multi ? `
+          <button class="slider-btn prev" onclick="slideImg(event,'${v.id}',-1)">‹</button>
+          <button class="slider-btn next" onclick="slideImg(event,'${v.id}',1)">›</button>` : ""}
       </div>
-      <div class="p-5 flex flex-col flex-1">
-        <h3 class="font-black text-gray-900 text-base mb-1">${v.nombre}</h3>
-        <p class="text-gray-500 text-sm mb-4 flex-1">${v.descripcion || ""}</p>
-        <div class="grid grid-cols-3 gap-2 mb-4 text-xs text-gray-500">
-          <div class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.pasajeros || 5} pers.</div>
-          <div class="flex items-center gap-1"><i data-lucide="settings" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.transmision || "Auto"}</div>
-          <div class="flex items-center gap-1"><i data-lucide="fuel" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.combustible || "Gas"}</div>
+      ${multi ? `<div class="slider-dots">${imgs.map((_,i) => `<div class="s-dot ${i===0?"active":""}" onclick="goSlide(event,'${v.id}',${i})"></div>`).join("")}</div>` : ""}`;
+
+    return `
+      <article class="car-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+        <div class="relative">
+          ${sliderHtml}
+          <span class="absolute top-3 left-3 bg-[#004A99]/90 text-white text-[10px] font-bold uppercase px-2.5 py-1 rounded-full z-1">${v.categoria || ""}</span>
+          <span class="${priceClass} absolute top-3 right-3 z-1">${precio}</span>
         </div>
-        <button onclick="reserveWA('${(v.nombre || '').replace(/'/g,"\\'")}', ${v.precio})"
-          class="w-full flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold text-sm py-2.5 rounded-xl transition-all shadow-sm">
-          <i data-lucide="message-circle" class="w-4 h-4"></i> Reservar por WhatsApp
-        </button>
-      </div>
-    </article>`).join("");
+        <div class="p-5 flex flex-col flex-1">
+          <h3 class="font-black text-gray-900 text-base mb-1">${v.nombre}</h3>
+          <p class="text-gray-500 text-sm mb-4 flex-1">${v.descripcion || ""}</p>
+          <div class="grid grid-cols-3 gap-2 mb-4 text-xs text-gray-500">
+            <div class="flex items-center gap-1"><i data-lucide="users" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.pasajeros||5} pers.</div>
+            <div class="flex items-center gap-1"><i data-lucide="settings" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.transmision||"Auto"}</div>
+            <div class="flex items-center gap-1"><i data-lucide="fuel" class="w-3.5 h-3.5 text-[#004A99]"></i> ${v.combustible||"Gas"}</div>
+          </div>
+          <button onclick="reserveWA('${(v.nombre||"").replace(/'/g,"\\'")}', ${v.precio||null})"
+            class="w-full flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b71c1c] text-white font-bold text-sm py-2.5 rounded-xl transition-all shadow-sm">
+            <i data-lucide="message-circle" class="w-4 h-4"></i> Reservar por WhatsApp
+          </button>
+        </div>
+      </article>`;
+  }).join("");
   lucide.createIcons();
 }
+
+/* Slider de imágenes en las cards */
+window.slideImg = function(e, id, dir) {
+  e.stopPropagation();
+  const wrap = document.getElementById("sl-"+id);
+  if (!wrap) return;
+  const imgs = JSON.parse(wrap.dataset.imgs || "[]");
+  let idx = (parseInt(wrap.dataset.idx||0) + dir + imgs.length) % imgs.length;
+  wrap.dataset.idx = idx;
+  wrap.querySelector("img").src = imgs[idx];
+  const parent = wrap.parentElement;
+  parent.querySelectorAll(".s-dot").forEach((d,i) => d.classList.toggle("active", i===idx));
+};
+window.goSlide = function(e, id, idx) {
+  e.stopPropagation();
+  const wrap = document.getElementById("sl-"+id);
+  if (!wrap) return;
+  const imgs = JSON.parse(wrap.dataset.imgs || "[]");
+  wrap.dataset.idx = idx;
+  wrap.querySelector("img").src = imgs[idx];
+  const parent = wrap.parentElement;
+  parent.querySelectorAll(".s-dot").forEach((d,i) => d.classList.toggle("active", i===idx));
+};
 
 function renderFilterTabs() {
   const cats = ["todos", ...categories.map(c => c.nombre)];
   document.getElementById("filter-tabs").innerHTML = cats.map(c => `
-    <button class="filter-tab ${c === currentFilter ? "active-tab" : ""}"
-      onclick="setFilter('${c}',this)">${c === "todos" ? "Todos" : c}</button>`).join("");
+    <button class="filter-tab ${c===currentFilter?"active-tab":""}" onclick="setFilter('${c}',this)">
+      ${c==="todos"?"Todos":c}
+    </button>`).join("");
 
-  const rTipo = document.getElementById("r-tipo");
-  if (rTipo) rTipo.innerHTML = `<option value="">Todos los tipos</option>` +
+  const sel = document.getElementById("r-tipo");
+  if (sel) sel.innerHTML = `<option value="">Todos los tipos</option>` +
     categories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join("");
 }
 
 function renderRates() {
-  document.getElementById("rates-table").innerHTML = categories.map((c, i) => `
-    <tr class="${i % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50 transition-colors">
-      <td class="px-5 py-3.5 font-bold text-gray-800">${c.nombre}</td>
-      <td class="px-4 py-3.5 text-center font-black text-[#D32F2F]">$${c.precioDia}</td>
-      <td class="px-4 py-3.5 text-center font-semibold text-gray-700">$${c.precioSemana}</td>
-      <td class="px-4 py-3.5 text-center font-semibold text-gray-700">$${Math.round(c.precioDia * 22)}</td>
-      <td class="px-4 py-3.5 text-center text-gray-500 text-xs">${c.incluye || 'Seguro · Km ilim.'}</td>
+  document.getElementById("rates-table").innerHTML = categories.map((c,i) => `
+    <tr class="${i%2===0?"bg-white":"bg-gray-50"} hover:bg-blue-50 transition-colors">
+      <td class="px-5 py-3.5 font-bold text-gray-800 whitespace-nowrap">${c.nombre}</td>
+      <td class="px-4 py-3.5 text-center font-black text-[#D32F2F] whitespace-nowrap">${c.precioDia?"$"+c.precioDia:"Consultar"}</td>
+      <td class="px-4 py-3.5 text-center font-semibold text-gray-700 whitespace-nowrap">${c.precioSemana?"$"+c.precioSemana:"Consultar"}</td>
+      <td class="px-4 py-3.5 text-center font-semibold text-gray-700 whitespace-nowrap">${c.precioDia?"$"+Math.round(c.precioDia*22):"Consultar"}</td>
+      <td class="px-4 py-3.5 text-center text-gray-500 text-xs">${c.incluye||"Seguro · Km ilim."}</td>
     </tr>`).join("");
 }
 
 function renderTestimonials() {
   const list = [
-    { n:"Carlos M.", l:"San Salvador", t:"Excelente servicio. El auto llegó puntual y en perfecto estado. ¡Los recomiendo!" },
-    { n:"María R.",  l:"Usulután",     t:"La atención por WhatsApp fue rapidísima. Proceso muy sencillo." },
-    { n:"Luis P.",   l:"San Salvador", t:"Ya es la tercera vez que los uso. Sin duda los mejores de El Salvador." },
-    { n:"Ana G.",    l:"Santa Ana",    t:"Me entregaron el auto en el aeropuerto sin demoras. Muy profesionales." },
+    {n:"Carlos M.",l:"San Miguel",t:"Excelente servicio. El auto llegó puntual y en perfecto estado. ¡Los recomiendo!"},
+    {n:"María R.",l:"San Antonio",t:"La atención por WhatsApp fue rapidísima. Proceso muy sencillo y transparente."},
+    {n:"Luis P.",l:"San Miguel",t:"Ya es la tercera vez que los uso. Sin duda los mejores de la zona oriental."},
+    {n:"Ana G.",l:"San Salvador",t:"Me entregaron el auto en tiempo récord. Muy profesionales y amables."},
   ];
   document.getElementById("testimonials").innerHTML = list.map(t => `
     <div class="px-5 py-4">
@@ -998,7 +972,7 @@ function renderTestimonials() {
 }
 
 function updatePublicStats() {
-  document.getElementById("stat-total").textContent = vehicles.filter(v => v.disponible).length;
+  document.getElementById("stat-total").textContent = vehicles.filter(v=>v.disponible).length;
   document.getElementById("stat-cats").textContent  = categories.length;
 }
 
@@ -1010,210 +984,218 @@ window.setFilter = function(tipo, btn) {
 };
 
 window.reserveWA = function(nombre, precio) {
-  const msg = `Hola, me interesa reservar el *${nombre}* ($${precio}/día). ¿Está disponible?`;
+  const p = precio ? `$${precio}/día` : "precio a consultar";
+  const msg = `Hola, me interesa reservar el *${nombre}* (${p}). ¿Está disponible?`;
   window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
 };
 
-/* ══════════════════════════════════════════════════════════
-   📋  ADMIN — ACTUALIZAR UI
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   🛠️  ADMIN — REFRESH UI
+══════════════════════════════════════════════════ */
 function refreshAdminData() {
-  const dTotal = document.getElementById("d-total");
-  if (!dTotal) return;
+  if (!document.getElementById("d-total")) return;
+  const avail = vehicles.filter(v=>v.disponible).length;
+  document.getElementById("d-total").textContent  = vehicles.length;
+  document.getElementById("d-avail").textContent  = avail;
+  document.getElementById("d-cats").textContent   = categories.length;
+  document.getElementById("d-reserv").textContent = reservations.length;
 
-  const avail = vehicles.filter(v => v.disponible).length;
-  dTotal.textContent = vehicles.length;
-  document.getElementById("d-avail").textContent = avail;
-  document.getElementById("d-cats").textContent  = categories.length;
-  document.getElementById("d-reserv").textContent= reservations.length;
-
-  document.getElementById("d-vehicles-preview").innerHTML = vehicles.slice(0, 4).map(v => `
-    <div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
-      <img src="${v.imagen || ''}" alt="${v.nombre}" class="w-14 h-10 object-cover rounded-md bg-slate-700"
-        onerror="this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=100'" />
+  // Dashboard preview
+  document.getElementById("d-vehicles-preview").innerHTML = vehicles.slice(0,5).map(v => {
+    const img = getImgs(v)[0];
+    return `<div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+      <img src="${img}" alt="${v.nombre}" class="w-14 h-10 object-cover rounded-md bg-slate-700 flex-shrink-0"
+        onerror="this.src='${FALLBACK}'" />
       <div class="flex-1 min-w-0">
         <p class="text-white text-sm font-bold truncate">${v.nombre}</p>
-        <p class="text-slate-400 text-xs">${v.categoria} · $${v.precio}/día</p>
+        <p class="text-slate-400 text-xs">${v.categoria} · ${v.precio ? "$"+v.precio+"/día" : "Consultar"}</p>
       </div>
-      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${v.disponible ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"}">
-        ${v.disponible ? "Disponible" : "Rentado"}
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 ${v.disponible?"bg-green-500/20 text-green-400":"bg-red-500/20 text-red-400"}">
+        ${v.disponible?"Disponible":"Rentado"}
       </span>
-    </div>`).join("");
+    </div>`;}).join("");
 
+  // Tabla vehículos
   document.getElementById("vehicles-table").innerHTML = vehicles.length
-    ? vehicles.map(v => `
-      <tr>
-        <td><img src="${v.imagen || ''}" alt="${v.nombre}" class="w-16 h-11 object-cover rounded-lg bg-slate-700"
-          onerror="this.src='https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=100'" /></td>
-        <td><p class="font-bold text-white">${v.nombre}</p><p class="text-slate-400 text-xs">${v.descripcion || ""}</p></td>
-        <td><span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold">${v.categoria}</span></td>
-        <td class="font-black text-green-400">$${v.precio}</td>
-        <td>
+    ? vehicles.map(v => {
+      const img = getImgs(v)[0];
+      const priceLabel = v.precio ? `$${v.precio}` : `<span class="text-slate-400 text-xs">Consultar</span>`;
+      return `<tr>
+        <td><img src="${img}" class="w-16 h-11 object-cover rounded-lg bg-slate-700" onerror="this.src='${FALLBACK}'" /></td>
+        <td><p class="font-bold text-white text-sm">${v.nombre}</p><p class="text-slate-500 text-xs">${v.descripcion||""}</p></td>
+        <td class="hidden md:table-cell"><span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold">${v.categoria}</span></td>
+        <td class="font-black text-green-400">${priceLabel}</td>
+        <td class="hidden sm:table-cell">
           <div class="toggle-wrap">
-            <div class="toggle ${v.disponible ? "on" : ""}" onclick="toggleAvail('${v.id}',this)"></div>
-            <span class="text-slate-400 text-xs">${v.disponible ? "Disponible" : "Rentado"}</span>
+            <div class="toggle ${v.disponible?"on":""}" onclick="toggleAvail('${v.id}',this)"></div>
+            <span class="text-slate-400 text-xs">${v.disponible?"Disponible":"Rentado"}</span>
           </div>
         </td>
         <td>
-          <div class="flex gap-2">
-            <button onclick="openVehicleModal('${v.id}')" class="btn-ghost text-xs py-1 px-2">
-              <i data-lucide="edit-2" class="w-3.5 h-3.5"></i> Editar
-            </button>
-            <button onclick="deleteVehicle('${v.id}')" class="btn-danger text-xs py-1 px-2">
-              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-            </button>
+          <div class="flex gap-1.5 flex-wrap">
+            <button onclick="openVehicleModal('${v.id}')" class="btn-ghost text-xs py-1 px-2"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+            <button onclick="deleteVehicle('${v.id}')" class="btn-danger text-xs py-1 px-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
           </div>
         </td>
-      </tr>`).join("")
+      </tr>`;}).join("")
     : `<tr><td colspan="6" class="text-center text-slate-500 py-12">No hay vehículos. Agrega el primero.</td></tr>`;
 
+  // Grid categorías
   document.getElementById("categories-grid").innerHTML = categories.map(c => `
     <div class="admin-card flex flex-col gap-3">
-      <div class="flex items-start justify-between">
+      <div class="flex items-start justify-between gap-2">
         <div>
           <h4 class="text-white font-bold">${c.nombre}</h4>
-          <p class="text-slate-400 text-xs mt-0.5">${c.incluye || ''}</p>
+          <p class="text-slate-400 text-xs mt-0.5">${c.incluye||""}</p>
         </div>
-        <div class="flex gap-1">
+        <div class="flex gap-1 flex-shrink-0">
           <button onclick="openCatModal('${c.id}')" class="btn-ghost text-xs py-1 px-2"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
-          <button onclick="deleteCat('${c.id}')" class="btn-danger text-xs py-1 px-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+          <button onclick="deleteCat('${c.id}')"     class="btn-danger text-xs py-1 px-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
         </div>
       </div>
       <div class="flex gap-3 text-center">
         <div class="flex-1 bg-slate-800 rounded-lg py-2">
-          <div class="text-green-400 font-black">$${c.precioDia}</div>
+          <div class="text-green-400 font-black">${c.precioDia?"$"+c.precioDia:"—"}</div>
           <div class="text-slate-500 text-[10px]">por día</div>
         </div>
         <div class="flex-1 bg-slate-800 rounded-lg py-2">
-          <div class="text-blue-400 font-black">$${c.precioSemana}</div>
+          <div class="text-blue-400 font-black">${c.precioSemana?"$"+c.precioSemana:"—"}</div>
           <div class="text-slate-500 text-[10px]">por semana</div>
         </div>
       </div>
-      <div class="text-slate-400 text-xs">${vehicles.filter(v => v.categoria === c.nombre).length} vehículo(s)</div>
+      <div class="text-slate-400 text-xs">${vehicles.filter(v=>v.categoria===c.nombre).length} vehículo(s)</div>
     </div>`).join("");
 
+  // Tabla reservaciones
   document.getElementById("reservations-table").innerHTML = reservations.length
     ? reservations.map(r => {
-        const fecha = r.fecha?.toDate ? r.fecha.toDate() : new Date(r.fecha || Date.now());
-        return `<tr>
-          <td class="text-slate-400 text-xs">${fecha.toLocaleString("es-SV",{dateStyle:"short",timeStyle:"short"})}</td>
-          <td class="font-semibold text-white">${r.nombre}</td>
-          <td class="text-slate-300">${r.telefono}</td>
-          <td class="text-slate-300">${r.ciudad}</td>
-          <td class="text-slate-300">${r.tipo}</td>
-          <td class="font-bold text-yellow-400">${r.dias}</td>
-          <td>
-            <a href="https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(`Hola ${r.nombre}, te confirmamos tu reserva.`)}" target="_blank"
-              class="text-green-400 hover:text-green-300">
-              <i data-lucide="message-circle" class="w-4 h-4"></i>
-            </a>
-          </td>
-        </tr>`;}).join("")
-    : `<tr><td colspan="7" class="text-center text-slate-500 py-12">No hay reservaciones aún.</td></tr>`;
+      const f = r.fecha?.toDate ? r.fecha.toDate() : new Date(r.fecha||Date.now());
+      return `<tr>
+        <td class="text-slate-400 text-xs whitespace-nowrap">${f.toLocaleString("es-SV",{dateStyle:"short",timeStyle:"short"})}</td>
+        <td class="font-semibold text-white text-sm">${r.nombre}</td>
+        <td class="text-slate-300 text-sm hidden sm:table-cell">${r.telefono}</td>
+        <td class="text-slate-300 text-sm hidden md:table-cell">${r.tipo}</td>
+        <td class="font-bold text-yellow-400">${r.dias}</td>
+        <td>
+          <a href="https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(`Hola ${r.nombre}, confirmamos tu reserva.`)}" target="_blank" class="text-green-400 hover:text-green-300">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+          </a>
+        </td>
+      </tr>`;}).join("")
+    : `<tr><td colspan="6" class="text-center text-slate-500 py-12">No hay reservaciones aún.</td></tr>`;
 
   lucide.createIcons();
 }
 
-/* ══════════════════════════════════════════════════════════
-   📋  ADMIN TABS
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   📋  ADMIN TABS + SIDEBAR MÓVIL
+══════════════════════════════════════════════════ */
 window.showTab = function(tab, btn) {
   ["dashboard","vehicles","categories","reservations"].forEach(t =>
     document.getElementById("tab-"+t).classList.add("hidden"));
   document.getElementById("tab-"+tab).classList.remove("hidden");
   document.querySelectorAll(".admin-nav-link").forEach(l => l.classList.remove("active"));
   if (btn) btn.classList.add("active");
-  else document.querySelectorAll(".admin-nav-link")[0].classList.add("active");
+  closeSidebarMobile();
   lucide.createIcons();
 };
 
-/* ══════════════════════════════════════════════════════════
-   🔐  ADMIN AUTH — Firebase Authentication
-══════════════════════════════════════════════════════════ */
+window.toggleSidebar = function() {
+  const sb = document.getElementById("admin-sidebar");
+  const ov = document.getElementById("sidebar-overlay");
+  const open = sb.classList.toggle("open");
+  ov.classList.toggle("hidden", !open);
+};
+function closeSidebarMobile() {
+  if (window.innerWidth < 768) {
+    document.getElementById("admin-sidebar")?.classList.remove("open");
+    document.getElementById("sidebar-overlay")?.classList.add("hidden");
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   🔐  AUTH
+══════════════════════════════════════════════════ */
 window.openAdmin = function() {
   document.getElementById("admin-overlay").classList.add("open");
   onAuthStateChanged(auth, user => {
-    if (user) { showAdminPanel(); }
+    if (user) showAdminPanel(user);
     else {
       document.getElementById("login-screen").style.display = "flex";
       document.getElementById("admin-panel").style.display  = "none";
     }
   });
 };
-
 window.closeAdmin = function() {
   document.getElementById("admin-overlay").classList.remove("open");
 };
-
 window.doLogin = async function() {
-  const email  = document.getElementById("login-user").value.trim();
-  const pass   = document.getElementById("login-pass").value;
-  const errEl  = document.getElementById("login-error");
-  const btn    = document.getElementById("login-btn");
-
-  if (!email || !pass) { errEl.textContent = "Ingresa tu correo y contraseña."; errEl.classList.remove("hidden"); return; }
-  btn.disabled = true; btn.textContent = "Verificando…";
-  errEl.classList.add("hidden");
-
+  const email = document.getElementById("login-user").value.trim();
+  const pass  = document.getElementById("login-pass").value;
+  const errEl = document.getElementById("login-error");
+  const btn   = document.getElementById("login-btn");
+  if (!email||!pass) { errEl.textContent="Ingresa tu correo y contraseña."; errEl.classList.remove("hidden"); return; }
+  btn.disabled=true; btn.textContent="Verificando…"; errEl.classList.add("hidden");
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
-    showAdminPanel();
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    showAdminPanel(cred.user);
   } catch {
-    errEl.textContent = "Correo o contraseña incorrectos.";
+    errEl.textContent="Correo o contraseña incorrectos.";
     errEl.classList.remove("hidden");
-    document.getElementById("login-pass").value = "";
-  } finally {
-    btn.disabled = false; btn.textContent = "Iniciar sesión";
-  }
+    document.getElementById("login-pass").value="";
+  } finally { btn.disabled=false; btn.textContent="Iniciar sesión"; }
 };
-
 window.doLogout = async function() {
   await signOut(auth);
-  document.getElementById("admin-panel").style.display  = "none";
+  document.getElementById("admin-panel").style.display="none";
   document.getElementById("admin-panel").classList.remove("open");
-  document.getElementById("login-screen").style.display = "flex";
-  document.getElementById("login-pass").value = "";
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("login-pass").value="";
 };
-
-function showAdminPanel() {
-  document.getElementById("login-screen").style.display = "none";
-  document.getElementById("admin-panel").style.display  = "block";
+function showAdminPanel(user) {
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("admin-panel").style.display="block";
   document.getElementById("admin-panel").classList.add("open");
+  const lbl = document.getElementById("admin-email-label");
+  if (lbl && user) lbl.textContent = user.email;
+  seedDataIfEmpty();
   refreshAdminData();
   lucide.createIcons();
 }
 
-/* ══════════════════════════════════════════════════════════
-   🚗  VEHÍCULOS CRUD — Firestore
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   🚗  VEHÍCULOS CRUD
+══════════════════════════════════════════════════ */
 window.openVehicleModal = function(id) {
-  editingVehicleId = id || null;
-  pendingImgUrl    = null;
-  clearImg();
+  editingVehicleId = id||null;
+  pendingImgs = [];
+  renderImgPreviews();
   document.getElementById("vehicle-modal").classList.add("open");
   document.getElementById("vm-error").classList.add("hidden");
+  document.getElementById("img-error").classList.add("hidden");
 
-  document.getElementById("vm-cat").innerHTML =
-    categories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join("");
+  const catSel = document.getElementById("vm-cat");
+  catSel.innerHTML = categories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join("");
 
   if (id) {
-    const v = vehicles.find(v => v.id === id);
-    document.getElementById("vm-title").textContent    = "Editar Vehículo";
-    document.getElementById("vm-save-text").textContent= "Actualizar";
+    const v = vehicles.find(v=>v.id===id);
+    document.getElementById("vm-title").textContent     = "Editar Vehículo";
+    document.getElementById("vm-save-text").textContent = "Actualizar";
     document.getElementById("vm-name").value       = v.nombre;
-    document.getElementById("vm-cat").value        = v.categoria;
-    document.getElementById("vm-price").value      = v.precio;
-    document.getElementById("vm-passengers").value = v.pasajeros || 5;
-    document.getElementById("vm-trans").value      = v.transmision || "Automático";
-    document.getElementById("vm-fuel").value       = v.combustible || "Gasolina";
-    document.getElementById("vm-desc").value       = v.descripcion || "";
-    document.getElementById("vm-img-url").value    = v.imagen || "";
+    catSel.value                                   = v.categoria;
+    document.getElementById("vm-price").value      = v.precio||"";
+    document.getElementById("vm-passengers").value = v.pasajeros||5;
+    document.getElementById("vm-trans").value      = v.transmision||"Automático";
+    document.getElementById("vm-fuel").value       = v.combustible||"Gasolina";
+    document.getElementById("vm-desc").value       = v.descripcion||"";
     document.getElementById("vm-avail-toggle").classList.toggle("on", !!v.disponible);
-    if (v.imagen) { pendingImgUrl = v.imagen; previewFromUrl(v.imagen); }
+    document.getElementById("vm-img-url").value    = "";
+    pendingImgs = [...getImgs(v)].filter(u => u !== FALLBACK);
+    renderImgPreviews();
   } else {
-    document.getElementById("vm-title").textContent    = "Agregar Vehículo";
-    document.getElementById("vm-save-text").textContent= "Guardar Vehículo";
-    ["vm-name","vm-price","vm-desc","vm-img-url"].forEach(i => document.getElementById(i).value = "");
+    document.getElementById("vm-title").textContent     = "Agregar Vehículo";
+    document.getElementById("vm-save-text").textContent = "Guardar";
+    ["vm-name","vm-price","vm-desc","vm-img-url"].forEach(i => document.getElementById(i).value="");
     document.getElementById("vm-passengers").value = "5";
     document.getElementById("vm-trans").value = "Automático";
     document.getElementById("vm-fuel").value  = "Gasolina";
@@ -1221,317 +1203,308 @@ window.openVehicleModal = function(id) {
   }
   lucide.createIcons();
 };
-
 window.closeVehicleModal = function() {
   document.getElementById("vehicle-modal").classList.remove("open");
 };
 
 window.saveVehicle = async function() {
-  const nombre  = document.getElementById("vm-name").value.trim();
-  const cat     = document.getElementById("vm-cat").value;
-  const precio  = parseFloat(document.getElementById("vm-price").value);
-  const errEl   = document.getElementById("vm-error");
+  const nombre = document.getElementById("vm-name").value.trim();
+  const cat    = document.getElementById("vm-cat").value;
+  const precioRaw = document.getElementById("vm-price").value;
+  const precio = precioRaw ? parseFloat(precioRaw) : null;
+  const errEl  = document.getElementById("vm-error");
 
-  if (!nombre)             { errEl.textContent = "El nombre es obligatorio."; errEl.classList.remove("hidden"); return; }
-  if (!cat)                { errEl.textContent = "Selecciona una categoría."; errEl.classList.remove("hidden"); return; }
-  if (!precio || precio<=0){ errEl.textContent = "Ingresa un precio válido."; errEl.classList.remove("hidden"); return; }
+  if (!nombre) { errEl.textContent="El nombre es obligatorio."; errEl.classList.remove("hidden"); return; }
+  if (!cat)    { errEl.textContent="Selecciona una categoría."; errEl.classList.remove("hidden"); return; }
   errEl.classList.add("hidden");
 
-  const imagen = pendingImgUrl || document.getElementById("vm-img-url").value.trim()
-    || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=600";
+  const imagenes = pendingImgs.length ? pendingImgs : [FALLBACK];
 
   const data = {
     nombre,
     categoria:   cat,
     precio,
-    pasajeros:   parseInt(document.getElementById("vm-passengers").value) || 5,
+    pasajeros:   parseInt(document.getElementById("vm-passengers").value)||5,
     transmision: document.getElementById("vm-trans").value,
     combustible: document.getElementById("vm-fuel").value,
     descripcion: document.getElementById("vm-desc").value.trim(),
     disponible:  document.getElementById("vm-avail-toggle").classList.contains("on"),
-    imagen,
+    imagenes,
   };
 
   try {
     if (editingVehicleId) {
-      await updateDoc(doc(db, "autos", editingVehicleId), data);
+      await updateDoc(doc(db,"autos",editingVehicleId), data);
       showToast("✅ Vehículo actualizado");
     } else {
-      await addDoc(collection(db, "autos"), data);
-      showToast("✅ Vehículo agregado exitosamente");
+      await addDoc(collection(db,"autos"), data);
+      showToast("✅ Vehículo agregado");
     }
     closeVehicleModal();
   } catch (err) {
-    errEl.textContent = "Error: " + err.message;
+    errEl.textContent = "Error: "+err.message;
     errEl.classList.remove("hidden");
   }
 };
 
 window.deleteVehicle = async function(id) {
-  if (!confirm("¿Eliminar este vehículo? Esta acción no se puede deshacer.")) return;
-  try {
-    await deleteDoc(doc(db, "autos", id));
-    showToast("🗑 Vehículo eliminado");
-  } catch { showToast("❌ Error al eliminar"); }
+  if (!confirm("¿Eliminar este vehículo? No se puede deshacer.")) return;
+  await deleteDoc(doc(db,"autos",id)).then(() => showToast("🗑 Eliminado")).catch(() => showToast("❌ Error"));
 };
 
-window.toggleAvail = async function(id, toggleEl) {
-  const v = vehicles.find(v => v.id === id);
+window.toggleAvail = async function(id, el) {
+  const v = vehicles.find(v=>v.id===id);
   if (!v) return;
   const nuevo = !v.disponible;
-  try {
-    await updateDoc(doc(db, "autos", id), { disponible: nuevo });
-    toggleEl.classList.toggle("on", nuevo);
-    toggleEl.nextElementSibling.textContent = nuevo ? "Disponible" : "Rentado";
-  } catch { showToast("❌ Error al cambiar estado"); }
+  await updateDoc(doc(db,"autos",id), {disponible:nuevo});
+  el.classList.toggle("on", nuevo);
+  el.nextElementSibling.textContent = nuevo ? "Disponible" : "Rentado";
 };
 
-/* ══════════════════════════════════════════════════════════
-   🏷️  CATEGORÍAS CRUD — Firestore
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   🏷️  CATEGORÍAS CRUD
+══════════════════════════════════════════════════ */
 window.openCatModal = function(id) {
-  editingCatId = id || null;
+  editingCatId = id||null;
   document.getElementById("cat-modal").classList.add("open");
   document.getElementById("cm-error").classList.add("hidden");
-
   if (id) {
-    const c = categories.find(c => c.id === id);
+    const c = categories.find(c=>c.id===id);
     document.getElementById("cm-title").textContent = "Editar Categoría";
     document.getElementById("cm-name").value  = c.nombre;
     document.getElementById("cm-price").value = c.precioDia;
     document.getElementById("cm-week").value  = c.precioSemana;
-    document.getElementById("cm-inc").value   = c.incluye || '';
+    document.getElementById("cm-inc").value   = c.incluye||"";
   } else {
     document.getElementById("cm-title").textContent = "Nueva Categoría";
-    ["cm-name","cm-price","cm-week"].forEach(i => document.getElementById(i).value = "");
+    ["cm-name","cm-price","cm-week"].forEach(i=>document.getElementById(i).value="");
     document.getElementById("cm-inc").value = "Seguro · Km ilim.";
   }
 };
-
 window.closeCatModal = function() {
   document.getElementById("cat-modal").classList.remove("open");
 };
-
 window.saveCat = async function() {
   const nombre       = document.getElementById("cm-name").value.trim();
-  const precioDia    = parseFloat(document.getElementById("cm-price").value) || 0;
-  const precioSemana = parseFloat(document.getElementById("cm-week").value) || precioDia * 6;
-  const incluye      = document.getElementById("cm-inc").value.trim() || "Seguro · Km ilim.";
+  const precioDia    = parseFloat(document.getElementById("cm-price").value)||null;
+  const precioSemana = parseFloat(document.getElementById("cm-week").value)||null;
+  const incluye      = document.getElementById("cm-inc").value.trim()||"Seguro · Km ilim.";
   const errEl        = document.getElementById("cm-error");
-
-  if (!nombre)        { errEl.textContent = "El nombre es obligatorio."; errEl.classList.remove("hidden"); return; }
-  if (precioDia <= 0) { errEl.textContent = "Ingresa un precio válido."; errEl.classList.remove("hidden"); return; }
+  if (!nombre) { errEl.textContent="El nombre es obligatorio."; errEl.classList.remove("hidden"); return; }
   errEl.classList.add("hidden");
-
-  const data = { nombre, precioDia, precioSemana, incluye };
-
+  const data = {nombre, precioDia, precioSemana, incluye};
   try {
     if (editingCatId) {
-      const oldCat = categories.find(c => c.id === editingCatId);
-      await updateDoc(doc(db, "categorias", editingCatId), data);
-      if (oldCat && oldCat.nombre !== nombre) {
+      const old = categories.find(c=>c.id===editingCatId);
+      await updateDoc(doc(db,"categorias",editingCatId), data);
+      if (old && old.nombre !== nombre) {
         const batch = writeBatch(db);
-        vehicles.filter(v => v.categoria === oldCat.nombre)
-          .forEach(v => batch.update(doc(db, "autos", v.id), { categoria: nombre }));
+        vehicles.filter(v=>v.categoria===old.nombre).forEach(v=>batch.update(doc(db,"autos",v.id),{categoria:nombre}));
         await batch.commit();
       }
       showToast("✅ Categoría actualizada");
     } else {
-      await addDoc(collection(db, "categorias"), data);
+      await addDoc(collection(db,"categorias"), data);
       showToast("✅ Categoría creada");
     }
     closeCatModal();
   } catch (err) {
-    errEl.textContent = "Error: " + err.message;
-    errEl.classList.remove("hidden");
+    errEl.textContent="Error: "+err.message; errEl.classList.remove("hidden");
   }
 };
-
 window.deleteCat = async function(id) {
-  const cat   = categories.find(c => c.id === id);
-  const count = vehicles.filter(v => v.categoria === cat?.nombre).length;
-  if (count > 0) { showToast(`⚠️ Mueve los ${count} vehículo(s) primero.`); return; }
-  if (!confirm(`¿Eliminar la categoría "${cat?.nombre}"?`)) return;
-  try {
-    await deleteDoc(doc(db, "categorias", id));
-    showToast("🗑 Categoría eliminada");
-  } catch { showToast("❌ Error al eliminar"); }
+  const cat = categories.find(c=>c.id===id);
+  const n   = vehicles.filter(v=>v.categoria===cat?.nombre).length;
+  if (n>0) { showToast(`⚠️ Mueve los ${n} vehículo(s) de esta categoría primero.`); return; }
+  if (!confirm(`¿Eliminar "${cat?.nombre}"?`)) return;
+  await deleteDoc(doc(db,"categorias",id)).then(()=>showToast("🗑 Eliminada")).catch(()=>showToast("❌ Error"));
 };
 
-/* ══════════════════════════════════════════════════════════
-   ☁️  CLOUDINARY UPLOAD
-══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   ☁️  CLOUDINARY — MÚLTIPLES IMÁGENES
+══════════════════════════════════════════════════ */
+function renderImgPreviews() {
+  const wrap = document.getElementById("imgs-preview");
+  wrap.innerHTML = pendingImgs.map((url, i) => `
+    <div class="img-chip">
+      <img src="${url}" onerror="this.src='${FALLBACK}'" alt="img ${i+1}" />
+      <button onclick="removeImg(${i})" title="Quitar">✕</button>
+    </div>`).join("");
+}
+window.removeImg = function(i) {
+  pendingImgs.splice(i,1); renderImgPreviews();
+};
+window.addUrlImg = function() {
+  const url = document.getElementById("vm-img-url").value.trim();
+  if (!url||!url.startsWith("http")) { showToast("⚠️ URL inválida"); return; }
+  pendingImgs.push(url);
+  renderImgPreviews();
+  document.getElementById("vm-img-url").value="";
+};
+
 window.uploadImg = async function(input) {
-  const file = input.files[0];
-  if (!file) return;
-  startUpload();
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("upload_preset", CFG.uploadPreset);
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  document.getElementById("upload-placeholder").classList.add("hidden");
+  document.getElementById("upload-loading").classList.remove("hidden");
   try {
-    const res  = await fetch(`https://api.cloudinary.com/v1_1/${CFG.cloudName}/image/upload`, { method:"POST", body:fd });
-    if (!res.ok) throw new Error("Upload fallido");
-    const data = await res.json();
-    pendingImgUrl = data.secure_url;
-    document.getElementById("vm-img-url").value = pendingImgUrl;
-    showPreview(pendingImgUrl);
-    showToast("✅ Imagen subida a Cloudinary");
+    const urls = await Promise.all(files.map(async file => {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("upload_preset", CFG.uploadPreset);
+      const res  = await fetch(`https://api.cloudinary.com/v1_1/${CFG.cloudName}/image/upload`,{method:"POST",body:fd});
+      if (!res.ok) throw new Error("Upload fallido");
+      const data = await res.json();
+      return data.secure_url;
+    }));
+    pendingImgs.push(...urls);
+    renderImgPreviews();
+    showToast(`✅ ${urls.length} imagen(es) subida(s)`);
   } catch {
-    const errEl = document.getElementById("img-error");
-    errEl.textContent = "❌ Error al subir. Verifica tu Upload Preset en Cloudinary (debe ser unsigned).";
-    errEl.classList.remove("hidden");
-    resetUpload();
+    const e = document.getElementById("img-error");
+    e.textContent = "❌ Error al subir. Verifica que tu Upload Preset sea 'unsigned' en Cloudinary.";
+    e.classList.remove("hidden");
+  } finally {
+    document.getElementById("upload-loading").classList.add("hidden");
+    document.getElementById("upload-placeholder").classList.remove("hidden");
+    input.value="";
   }
 };
-
 window.handleDrop = function(e) {
   e.preventDefault();
   document.getElementById("upload-zone").classList.remove("dragover");
-  const file = e.dataTransfer.files[0];
-  if (file) { const dt = new DataTransfer(); dt.items.add(file); document.getElementById("img-file").files = dt.files; uploadImg(document.getElementById("img-file")); }
+  const files = Array.from(e.dataTransfer.files);
+  if (files.length) {
+    const dt = new DataTransfer();
+    files.forEach(f=>dt.items.add(f));
+    document.getElementById("img-file").files = dt.files;
+    uploadImg(document.getElementById("img-file"));
+  }
 };
 
-function startUpload()  { document.getElementById("upload-placeholder").classList.add("hidden"); document.getElementById("upload-preview").classList.add("hidden"); document.getElementById("upload-loading").classList.remove("hidden"); }
-function resetUpload()  { document.getElementById("upload-loading").classList.add("hidden"); document.getElementById("upload-placeholder").classList.remove("hidden"); }
-function showPreview(url) { document.getElementById("upload-loading").classList.add("hidden"); document.getElementById("upload-placeholder").classList.add("hidden"); document.getElementById("preview-img").src = url; document.getElementById("upload-preview").classList.remove("hidden"); }
-
-window.clearImg = function() {
-  pendingImgUrl = null;
-  document.getElementById("img-file").value = "";
-  document.getElementById("upload-placeholder").classList.remove("hidden");
-  document.getElementById("upload-preview").classList.add("hidden");
-  document.getElementById("upload-loading").classList.add("hidden");
-  document.getElementById("img-error").classList.add("hidden");
-};
-window.previewFromUrl = function(url) { if (url && url.startsWith("http")) { pendingImgUrl = url; showPreview(url); } };
-
-/* ══════════════════════════════════════════════════════════
-   📅  FORMULARIO DE RESERVA — Guarda en Firestore
-══════════════════════════════════════════════════════════ */
-function getV(id) { return document.getElementById(id)?.value?.trim() || ""; }
+/* ══════════════════════════════════════════════════
+   📅  FORMULARIO DE RESERVA
+══════════════════════════════════════════════════ */
+const gv = id => document.getElementById(id)?.value?.trim()||"";
 function setErr(id, show, msg) {
-  const el = document.getElementById(id), inp = document.getElementById(id.replace("err-","r-"));
-  if (el) { el.style.display = show ? "block" : "none"; if (msg) el.textContent = msg; }
+  const el = document.getElementById(id);
+  const inp = document.getElementById(id.replace("err-","r-"));
+  if (el) { el.style.display=show?"block":"none"; if(msg) el.textContent=msg; }
   if (inp) inp.classList.toggle("error", show);
 }
-
-function validateForm() {
-  let ok = true;
-  [["r-ciudad","err-ciudad","Selecciona una ciudad."],
-   ["r-fecha-in","err-fecha-in","Fecha requerida."],
+function validateReserve() {
+  let ok=true;
+  [["r-fecha-in","err-fecha-in","Fecha requerida."],
    ["r-fecha-out","err-fecha-out","Fecha requerida."],
    ["r-nombre","err-nombre","Ingresa tu nombre."],
    ["r-tel","err-tel","Ingresa tu teléfono."]
   ].forEach(([f,e,m]) => {
-    const v = getV(f), ok2 = f==="r-nombre" ? v.length>=3 : f==="r-tel" ? v.length>=7 : v !== "";
-    setErr(e, !ok2, m); if (!ok2) ok = false;
+    const v=gv(f), ok2=f==="r-nombre"?v.length>=3:f==="r-tel"?v.length>=7:v!=="";
+    setErr(e,!ok2,m); if(!ok2) ok=false;
   });
-  const fi = getV("r-fecha-in"), fo = getV("r-fecha-out");
-  if (fi && fo && fo <= fi) { setErr("err-fecha-out", true, "La devolución debe ser después de la recogida."); ok = false; }
+  const fi=gv("r-fecha-in"),fo=gv("r-fecha-out");
+  if(fi&&fo&&fo<=fi){setErr("err-fecha-out",true,"La devolución debe ser después de la recogida.");ok=false;}
   return ok;
 }
-
 function calcDays() {
-  const d = (new Date(getV("r-fecha-out")) - new Date(getV("r-fecha-in"))) / 86400000;
-  return d > 0 ? d : 0;
+  const d=(new Date(gv("r-fecha-out"))-new Date(gv("r-fecha-in")))/86400000;
+  return d>0?d:0;
 }
-
 ["r-fecha-in","r-fecha-out","r-tipo"].forEach(id => {
   document.getElementById(id)?.addEventListener("change", () => {
-    const days = calcDays(), tipo = getV("r-tipo");
-    const cat = categories.find(c => c.nombre === tipo);
-    const summary = document.getElementById("reserve-summary");
-    if (days > 0) {
-      document.getElementById("s-days").textContent  = `${days} día${days > 1 ? "s" : ""}`;
-      document.getElementById("s-total").textContent = `$${((cat?.precioDia || 35) * days).toFixed(2)}`;
-      summary.classList.remove("hidden");
-    } else summary.classList.add("hidden");
+    const days=calcDays(), tipo=gv("r-tipo");
+    const cat=categories.find(c=>c.nombre===tipo);
+    const sum=document.getElementById("reserve-summary");
+    if(days>0){
+      document.getElementById("s-days").textContent=`${days} día${days>1?"s":""}`;
+      const precio=cat?.precioDia;
+      document.getElementById("s-total").textContent=precio?`$${(precio*days).toFixed(2)}`:"Consultar precio";
+      sum.classList.remove("hidden");
+    } else sum.classList.add("hidden");
   });
 });
-
 document.getElementById("reserve-form").addEventListener("submit", async e => {
   e.preventDefault();
-  if (!validateForm()) return;
-  const btn = document.getElementById("reserve-btn"), spinner = document.getElementById("btn-spinner"),
-        btnText = document.getElementById("btn-text"), btnIcon = document.getElementById("btn-icon");
-  btn.disabled = true; spinner.style.display = "block";
-  btnText.textContent = "Enviando…"; btnIcon.style.display = "none";
-
-  const reserva = {
-    ciudad:        getV("r-ciudad"),
-    fechaRecogida: getV("r-fecha-in"),
-    horaRecogida:  getV("r-hora-in"),
-    fechaDev:      getV("r-fecha-out"),
-    horaDev:       getV("r-hora-out"),
-    tipo:          getV("r-tipo") || "Todos",
-    nombre:        getV("r-nombre"),
-    telefono:      getV("r-tel"),
+  if(!validateReserve()) return;
+  const btn=document.getElementById("reserve-btn"),
+        spinner=document.getElementById("btn-spinner"),
+        btnText=document.getElementById("btn-text"),
+        btnIcon=document.getElementById("btn-icon");
+  btn.disabled=true; spinner.style.display="block"; btnText.textContent="Enviando…"; btnIcon.style.display="none";
+  const reserva={
+    ciudad:        CFG.location,
+    fechaRecogida: gv("r-fecha-in"),
+    horaRecogida:  gv("r-hora-in"),
+    fechaDev:      gv("r-fecha-out"),
+    horaDev:       gv("r-hora-out"),
+    tipo:          gv("r-tipo")||"Todos los tipos",
+    nombre:        gv("r-nombre"),
+    telefono:      gv("r-tel"),
     dias:          calcDays(),
     fecha:         serverTimestamp(),
     estado:        "pendiente",
   };
-
   try {
-    await addDoc(collection(db, "reservas"), reserva);
-    const msg = `🚗 *Nueva Reserva - Renta Car Martínez*\n\n👤 *Nombre:* ${reserva.nombre}\n📞 *Tel:* ${reserva.telefono}\n📍 *Ciudad:* ${reserva.ciudad}\n🚙 *Tipo:* ${reserva.tipo}\n📅 *Recogida:* ${reserva.fechaRecogida} ${reserva.horaRecogida}\n📅 *Devolución:* ${reserva.fechaDev} ${reserva.horaDev}\n📆 *Días:* ${reserva.dias}`;
+    await addDoc(collection(db,"reservas"), reserva);
+    const msg=`🚗 *Nueva Reserva — Renta Car Martínez*\n\n👤 *Nombre:* ${reserva.nombre}\n📞 *Tel:* ${reserva.telefono}\n📍 *Lugar:* ${reserva.ciudad}\n🚙 *Tipo:* ${reserva.tipo}\n📅 *Recogida:* ${reserva.fechaRecogida} ${reserva.horaRecogida}\n📅 *Devolución:* ${reserva.fechaDev} ${reserva.horaDev}\n📆 *Días:* ${reserva.dias}`;
     showToast("✅ ¡Reserva enviada! Redirigiendo a WhatsApp…");
-    setTimeout(() => {
-      window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+    setTimeout(()=>{
+      window.open(`https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(msg)}`,"_blank");
       document.getElementById("reserve-form").reset();
       document.getElementById("reserve-summary").classList.add("hidden");
     }, 1500);
-  } catch {
-    showToast("❌ Error al enviar. Llámanos al 7890-1234.");
-  } finally {
-    btn.disabled = false; spinner.style.display = "none";
-    btnText.textContent = "BUSCAR DISPONIBILIDAD"; btnIcon.style.display = "inline";
+  } catch { showToast("❌ Error al enviar. Llámanos al 7890-1234."); }
+  finally {
+    btn.disabled=false; spinner.style.display="none";
+    btnText.textContent="BUSCAR DISPONIBILIDAD"; btnIcon.style.display="inline";
   }
 });
 
-const today = new Date().toISOString().split("T")[0];
-document.getElementById("r-fecha-in").min  = today;
-document.getElementById("r-fecha-out").min = today;
-document.getElementById("r-fecha-in").addEventListener("change", function() {
-  document.getElementById("r-fecha-out").min = this.value;
+const today=new Date().toISOString().split("T")[0];
+document.getElementById("r-fecha-in").min=today;
+document.getElementById("r-fecha-out").min=today;
+document.getElementById("r-fecha-in").addEventListener("change",function(){
+  document.getElementById("r-fecha-out").min=this.value;
 });
 
 window.clearReservations = async function() {
-  if (!confirm("¿Limpiar TODAS las reservaciones? No se puede deshacer.")) return;
+  if(!confirm("¿Limpiar TODAS las reservaciones?")) return;
   try {
-    const snap  = await getDocs(collection(db, "reservas"));
-    const batch = writeBatch(db);
-    snap.docs.forEach(d => batch.delete(d.ref));
+    const snap=await getDocs(collection(db,"reservas"));
+    const batch=writeBatch(db);
+    snap.docs.forEach(d=>batch.delete(d.ref));
     await batch.commit();
     showToast("🗑 Reservaciones eliminadas");
-  } catch { showToast("❌ Error al limpiar"); }
+  } catch { showToast("❌ Error"); }
 };
 
-/* ══════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════
    🍞  TOAST + NAVBAR + FADE
-══════════════════════════════════════════════════════════ */
+══════════════════════════════════════════════════ */
 let _tt;
 function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.classList.add("show");
-  clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove("show"), 4000);
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove("show"), 4000);
 }
 window.showToast = showToast;
 
-window.addEventListener("scroll", () => {
-  document.getElementById("navbar").classList.toggle("scrolled", window.scrollY > 10);
+window.addEventListener("scroll",()=>{
+  document.getElementById("navbar").classList.toggle("scrolled", window.scrollY>10);
 });
-document.getElementById("hamburger").addEventListener("click", () => {
+document.getElementById("hamburger").addEventListener("click",()=>{
   document.getElementById("mobile-menu").classList.toggle("open");
 });
-window.closeMenu = function() { document.getElementById("mobile-menu").classList.remove("open"); };
+window.closeMenu = ()=>document.getElementById("mobile-menu").classList.remove("open");
 
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); obs.unobserve(e.target); }});
-}, { threshold: 0.1 });
-document.querySelectorAll(".fade-in").forEach(el => obs.observe(el));
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){e.target.classList.add("visible");obs.unobserve(e.target);}});
+},{threshold:0.1});
+document.querySelectorAll(".fade-in").forEach(el=>obs.observe(el));
 
 renderTestimonials();
 lucide.createIcons();
+
 </script>
 </body>
 </html>
