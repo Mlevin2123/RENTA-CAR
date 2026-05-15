@@ -28,8 +28,8 @@
     .input-field:focus{border-color:#004A99;box-shadow:0 0 0 3px rgba(0,74,153,.12)}
     .input-field.error{border-color:#D32F2F;box-shadow:0 0 0 3px rgba(211,47,47,.1)}
     .field-error{color:#D32F2F;font-size:.75rem;margin-top:.2rem;display:none}
-    #mobile-menu{transition:max-height .35s,opacity .35s;max-height:0;overflow:hidden;opacity:0;overscroll-behavior:contain}
-    #mobile-menu.open{max-height:100vh;opacity:1;overflow-y:auto;display:block;-webkit-overflow-scrolling:touch}
+    #mobile-menu{transition:transform .35s,opacity .35s;opacity:0;position:fixed;inset:0;top:60px;background:white;z-index:100;overflow:hidden;pointer-events:none}
+    #mobile-menu.open{opacity:1;pointer-events:auto;overflow-y:auto;max-height:calc(100vh - 60px)}
     #toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(40px);background:#1e293b;color:#fff;padding:.85rem 2rem;border-radius:999px;font-size:.875rem;font-weight:600;opacity:0;transition:all .4s;z-index:9999;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
