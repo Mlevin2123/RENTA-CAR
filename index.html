@@ -12,9 +12,6 @@
   </script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
-    /* ═══════════════════════════════════════
-       PUBLIC SITE STYLES
-    ═══════════════════════════════════════ */
     *{scroll-behavior:smooth;box-sizing:border-box}
     body{font-family:'Segoe UI',system-ui,sans-serif;background:#f4f6f8}
     .topbar-text{animation:mb 36s linear infinite;white-space:nowrap;display:inline-block}
@@ -31,23 +28,30 @@
     .input-field:focus{border-color:#004A99;box-shadow:0 0 0 3px rgba(0,74,153,.12)}
     .input-field.error{border-color:#D32F2F;box-shadow:0 0 0 3px rgba(211,47,47,.1)}
     .field-error{color:#D32F2F;font-size:.75rem;margin-top:.2rem;display:none}
-
-    /* Mobile menu — public site */
+    /* Mobile menu — desliza desde la derecha */
     #mobile-menu{
-      transition:transform .35s cubic-bezier(.4,0,.2,1),opacity .35s;
-      opacity:0;
       position:fixed;
-      inset:0;
-      top:60px;
-      background:white;
-      z-index:100;
+      top:0; right:-100%; bottom:0;
+      width:80%; max-width:320px;
+      height:100vh;
       overflow-y:auto;
       -webkit-overflow-scrolling:touch;
-      pointer-events:none;
-      transform:translateY(-8px);
+      background:#fff;
+      z-index:200;
+      box-shadow:-6px 0 30px rgba(0,0,0,.18);
+      transition:right .35s cubic-bezier(.4,0,.2,1);
+      padding-top:env(safe-area-inset-top,0);
     }
-    #mobile-menu.open{opacity:1;pointer-events:auto;transform:translateY(0)}
-
+    #mobile-menu.open{ right:0; }
+    /* Overlay detrás del menú */
+    #menu-overlay{
+      display:none;
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.45);
+      z-index:199;
+      backdrop-filter:blur(2px);
+    }
+    #menu-overlay.open{ display:block; }
     #toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(40px);background:#1e293b;color:#fff;padding:.85rem 2rem;border-radius:999px;font-size:.875rem;font-weight:600;opacity:0;transition:all .4s;z-index:9999;white-space:nowrap;pointer-events:none;max-width:90vw;text-align:center}
     #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
     .fade-in{opacity:0;transform:translateY(24px);transition:opacity .6s,transform .6s}
@@ -74,491 +78,84 @@
     .s-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.2);cursor:pointer;transition:background .2s}
     .s-dot.active{background:#004A99}
 
-    /* ═══════════════════════════════════════
-       ADMIN OVERLAY — REDISEÑO COMPLETO
-       Filosofía: "App nativa dark" con tokens
-       propios, UX táctil y cards en móvil.
-    ═══════════════════════════════════════ */
-    :root{
-      --adm-bg:#0a0f1e;
-      --adm-surface:#111827;
-      --adm-surface2:#1c2537;
-      --adm-border:#1e2d45;
-      --adm-border2:#243550;
-      --adm-text:#e2e8f0;
-      --adm-muted:#64748b;
-      --adm-accent:#3b82f6;
-      --adm-accent-soft:rgba(59,130,246,.12);
-      --adm-green:#22c55e;
-      --adm-red:#ef4444;
-      --adm-yellow:#f59e0b;
-      --adm-sidebar:220px;
-      --adm-topbar:56px;
-      --adm-radius:14px;
-      --adm-tap:48px;      /* min height for tap targets */
-    }
-
-    /* ── Overlay container ── */
-    #admin-overlay{
-      display:none;
-      position:fixed;
-      inset:0;
-      z-index:1000;
-      background:var(--adm-bg);
-      overflow:hidden;
-    }
+    /* ── ADMIN OVERLAY ── */
+    /*
+      FIX SCROLL MÓVIL:
+      - El overlay es position:fixed;inset:0 → tiene 100vh de alto garantizado.
+      - Usamos display:flex;flex-direction:column para encadenar la altura.
+      - overflow:hidden solo en el overlay exterior para evitar double-scrollbar.
+      - Todos los hijos usan min-height:0 (regla crítica de flex para que
+        overflow-y:auto funcione en iOS/Android).
+      - -webkit-overflow-scrolling:touch habilita scroll con inercia en iOS.
+    */
+    #admin-overlay{display:none;position:fixed;inset:0;z-index:1000;background:#0f172a;overflow:hidden}
     #admin-overlay.open{display:flex;flex-direction:column}
-
-    /* ── Login screen ── */
-    #login-screen{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex:1;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-      padding:1.5rem;
-      background:var(--adm-bg);
-      background-image:
-        radial-gradient(ellipse 60% 40% at 50% -10%, rgba(59,130,246,.18) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 90% 90%, rgba(0,74,153,.12) 0%, transparent 60%);
-    }
-
-    /* ── Admin panel ── */
+    #login-screen{display:flex;align-items:center;justify-content:center;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
     #admin-panel{display:none;flex:1;min-height:0}
     #admin-panel.open{display:flex;flex-direction:column;min-height:0}
 
-    /* ── Top bar ── */
-    .admin-topbar{
-      height:var(--adm-topbar);
-      background:var(--adm-surface);
-      border-bottom:1px solid var(--adm-border);
-      padding:0 1rem;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:.75rem;
-      flex-shrink:0;
-      position:sticky;
-      top:0;
-      z-index:30;
-    }
+    /* Admin top bar — no crece, siempre visible */
+    .admin-topbar{background:#0b1426;border-bottom:1px solid #1e293b;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-shrink:0}
 
-    /* ── Admin body ── */
+    /* Admin layout — min-height:0 es CLAVE para que flex children puedan scroll */
     .admin-body{display:flex;flex:1;min-height:0;position:relative}
 
-    /* ── Sidebar ── */
-    #admin-sidebar{
-      background:var(--adm-surface);
-      border-right:1px solid var(--adm-border);
-      width:var(--adm-sidebar);
-      flex-shrink:0;
-      display:flex;
-      flex-direction:column;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-      transition:transform .3s cubic-bezier(.4,0,.2,1);
-      z-index:20;
-    }
+    /* Sidebar */
+    #admin-sidebar{background:#0b1426;border-right:1px solid #1e293b;width:230px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;transition:transform .3s;z-index:20}
     @media(max-width:767px){
-      #admin-sidebar{
-        position:absolute;
-        top:0;bottom:0;left:0;
-        width:260px;
-        transform:translateX(-100%);
-        box-shadow:8px 0 40px rgba(0,0,0,.6);
-      }
+      #admin-sidebar{position:absolute;top:0;bottom:0;left:0;width:240px;transform:translateX(-100%);box-shadow:4px 0 20px rgba(0,0,0,.5)}
       #admin-sidebar.open{transform:translateX(0)}
+      .admin-topbar{justify-content:space-between}
     }
 
-    /* ── Admin content ── */
+    /* Admin content — flex:1 + min-height:0 + overflow-y:auto = scroll garantizado */
     #admin-content{
       flex:1;
       min-height:0;
       overflow-y:auto;
       -webkit-overflow-scrolling:touch;
       overscroll-behavior:contain;
-      background:var(--adm-bg);
+      background:#0f172a;
     }
 
-    /* ── Nav links ── */
-    .admin-nav-link{
-      display:flex;
-      align-items:center;
-      gap:.75rem;
-      padding:.75rem 1rem;
-      border-radius:10px;
-      color:var(--adm-muted);
-      font-size:.875rem;
-      font-weight:600;
-      cursor:pointer;
-      transition:all .2s;
-      min-height:var(--adm-tap);
-      user-select:none;
-    }
-    .admin-nav-link:hover{background:rgba(255,255,255,.04);color:var(--adm-text)}
-    .admin-nav-link.active{
-      background:var(--adm-accent-soft);
-      color:var(--adm-accent);
-      border:1px solid rgba(59,130,246,.2);
-    }
-    .admin-nav-link .nav-icon{
-      width:36px;height:36px;
-      border-radius:9px;
-      background:rgba(255,255,255,.04);
-      display:flex;align-items:center;justify-content:center;
-      flex-shrink:0;
-      transition:background .2s;
-    }
-    .admin-nav-link.active .nav-icon{background:var(--adm-accent-soft)}
-    .admin-nav-link:hover .nav-icon{background:rgba(255,255,255,.07)}
-
-    /* ── Stat cards ── */
-    .stat-card{
-      background:var(--adm-surface);
-      border:1px solid var(--adm-border);
-      border-radius:var(--adm-radius);
-      padding:1.25rem;
-      position:relative;
-      overflow:hidden;
-      transition:border-color .2s,transform .2s;
-    }
-    .stat-card::before{
-      content:'';
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      opacity:0;
-      transition:opacity .2s;
-    }
-    .stat-card:hover{transform:translateY(-2px);border-color:var(--adm-border2)}
-
-    /* ── Admin card ── */
-    .admin-card{
-      background:var(--adm-surface);
-      border:1px solid var(--adm-border);
-      border-radius:var(--adm-radius);
-      padding:1.5rem;
-    }
-
-    /* ── Buttons ── */
-    .btn-primary{
-      display:inline-flex;align-items:center;gap:.5rem;
-      padding:.65rem 1.25rem;
-      background:var(--adm-accent);
-      color:#fff;border:none;
-      border-radius:10px;
-      font-size:.85rem;font-weight:700;
-      cursor:pointer;
-      transition:background .2s,transform .1s;
-      min-height:var(--adm-tap);
-      touch-action:manipulation;
-    }
-    .btn-primary:hover{background:#2563eb}
-    .btn-primary:active{transform:scale(.97)}
-
-    .btn-danger{
-      display:inline-flex;align-items:center;gap:.5rem;
-      padding:.65rem 1.25rem;
-      background:var(--adm-red);
-      color:#fff;border:none;
-      border-radius:10px;
-      font-size:.85rem;font-weight:700;
-      cursor:pointer;
-      transition:background .2s,transform .1s;
-      min-height:var(--adm-tap);
-      touch-action:manipulation;
-    }
-    .btn-danger:hover{background:#dc2626}
-    .btn-danger:active{transform:scale(.97)}
-
-    .btn-ghost{
-      display:inline-flex;align-items:center;gap:.5rem;
-      padding:.65rem 1.25rem;
-      background:transparent;
-      color:var(--adm-muted);
-      border:1px solid var(--adm-border2);
-      border-radius:10px;
-      font-size:.85rem;font-weight:600;
-      cursor:pointer;
-      transition:all .2s;
-      min-height:var(--adm-tap);
-      touch-action:manipulation;
-    }
-    .btn-ghost:hover{background:var(--adm-surface2);color:var(--adm-text)}
-
-    /* Icon-only button for touch */
-    .btn-icon{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:var(--adm-tap);height:var(--adm-tap);
-      border-radius:10px;border:none;
-      cursor:pointer;transition:all .2s;
-      flex-shrink:0;
-      touch-action:manipulation;
-    }
-    .btn-icon-edit{background:rgba(59,130,246,.12);color:var(--adm-accent)}
-    .btn-icon-edit:hover{background:rgba(59,130,246,.22)}
-    .btn-icon-del{background:rgba(239,68,68,.12);color:var(--adm-red)}
-    .btn-icon-del:hover{background:rgba(239,68,68,.22)}
-
-    /* ── Toggle ── */
-    .toggle-wrap{display:flex;align-items:center;gap:.75rem;cursor:pointer;user-select:none}
-    .toggle{
-      width:48px;height:26px;
-      background:var(--adm-border2);
-      border-radius:999px;
-      position:relative;
-      transition:background .3s;
-      flex-shrink:0;
-    }
+    .admin-nav-link{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.75rem;color:#94a3b8;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
+    .admin-nav-link:hover{background:rgba(255,255,255,.05);color:#fff}
+    .admin-nav-link.active{background:rgba(0,74,153,.25);color:#60a5fa}
+    .admin-table{width:100%;border-collapse:collapse}
+    .admin-table th{background:#1e293b;color:#94a3b8;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:.75rem 1rem;text-align:left}
+    .admin-table td{padding:.85rem 1rem;border-bottom:1px solid #1e293b;font-size:.875rem;color:#e2e8f0;vertical-align:middle}
+    .admin-table tr:hover td{background:rgba(255,255,255,.025)}
+    .admin-card{background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:1.5rem}
+    .upload-zone{border:2px dashed #334155;border-radius:.75rem;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;background:#0f172a}
+    .upload-zone:hover{border-color:#004A99}
+    .upload-zone.dragover{border-color:#60a5fa;background:rgba(0,74,153,.1)}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2000;align-items:center;justify-content:center;padding:1rem}
+    .modal-bg.open{display:flex}
+    .modal-box{background:#1e293b;border:1px solid #334155;border-radius:1.25rem;width:100%;max-width:580px;max-height:92vh;overflow-y:auto}
+    .stat-card{background:#1e293b;border:1px solid #334155;border-radius:1rem;padding:1.25rem 1.5rem}
+    .a-input{width:100%;padding:.6rem .9rem;background:#0f172a;border:1px solid #334155;border-radius:.6rem;color:#e2e8f0;font-size:.875rem;outline:none;transition:border-color .2s}
+    .a-input:focus{border-color:#004A99}
+    .a-input option{background:#0f172a}
+    .a-label{display:block;font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.35rem}
+    .toggle-wrap{display:flex;align-items:center;gap:.75rem;cursor:pointer}
+    .toggle{width:44px;height:24px;background:#334155;border-radius:999px;position:relative;transition:background .3s;flex-shrink:0}
     .toggle.on{background:#16a34a}
-    .toggle::after{
-      content:'';position:absolute;
-      left:4px;top:4px;
-      width:18px;height:18px;
-      border-radius:50%;background:#fff;
-      transition:transform .3s;
-      box-shadow:0 1px 3px rgba(0,0,0,.3);
-    }
-    .toggle.on::after{transform:translateX(22px)}
+    .toggle::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .3s}
+    .toggle.on::after{transform:translateX(20px)}
+    .btn-primary{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.25rem;background:#004A99;color:#fff;border:none;border-radius:.6rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .2s}
+    .btn-primary:hover{background:#003370}
+    .btn-danger{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.25rem;background:#D32F2F;color:#fff;border:none;border-radius:.6rem;font-size:.85rem;font-weight:700;cursor:pointer;transition:background .2s}
+    .btn-danger:hover{background:#b71c1c}
+    .btn-ghost{display:inline-flex;align-items:center;gap:.5rem;padding:.55rem 1.25rem;background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:.6rem;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-ghost:hover{background:#1e293b;color:#e2e8f0}
 
-    /* ── Admin inputs ── */
-    .a-input{
-      width:100%;
-      padding:.65rem .9rem;
-      background:var(--adm-bg);
-      border:1px solid var(--adm-border2);
-      border-radius:10px;
-      color:var(--adm-text);
-      font-size:.875rem;
-      outline:none;
-      transition:border-color .2s,box-shadow .2s;
-      min-height:var(--adm-tap);
-    }
-    .a-input:focus{border-color:var(--adm-accent);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
-    .a-input option{background:var(--adm-surface)}
-    .a-label{
-      display:block;
-      font-size:.7rem;font-weight:800;
-      color:var(--adm-muted);
-      text-transform:uppercase;letter-spacing:.1em;
-      margin-bottom:.4rem;
-    }
-
-    /* ── Table scroll wrapper ── */
+    /* TABLE SCROLL WRAPPER */
     .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
-    /* ── Admin table (desktop only) ── */
-    .admin-table{width:100%;border-collapse:collapse}
-    .admin-table th{
-      background:var(--adm-surface2);
-      color:var(--adm-muted);
-      font-size:.7rem;font-weight:800;
-      text-transform:uppercase;letter-spacing:.1em;
-      padding:.85rem 1rem;
-      text-align:left;
-      white-space:nowrap;
-    }
-    .admin-table td{
-      padding:.9rem 1rem;
-      border-bottom:1px solid var(--adm-border);
-      font-size:.875rem;
-      color:var(--adm-text);
-      vertical-align:middle;
-    }
-    .admin-table tr:hover td{background:rgba(255,255,255,.02)}
-
-    /* ── Vehicle CARDS for mobile ── */
-    .vehicle-card-mobile{
-      background:var(--adm-surface);
-      border:1px solid var(--adm-border);
-      border-radius:var(--adm-radius);
-      overflow:hidden;
-      display:flex;
-      gap:0;
-      transition:border-color .2s;
-    }
-    .vehicle-card-mobile:active{border-color:var(--adm-accent)}
-    .vehicle-card-mobile .vc-img{
-      width:90px;
-      flex-shrink:0;
-      object-fit:cover;
-      background:var(--adm-surface2);
-    }
-    .vehicle-card-mobile .vc-body{
-      flex:1;min-width:0;
-      padding:.85rem .9rem;
-      display:flex;flex-direction:column;gap:.35rem;
-    }
-    .vehicle-card-mobile .vc-actions{
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      gap:.35rem;
-      padding:.6rem .5rem;
-      border-left:1px solid var(--adm-border);
-      background:rgba(0,0,0,.1);
-      flex-shrink:0;
-    }
-
-    /* ── Badge ── */
-    .badge{
-      display:inline-flex;align-items:center;
-      padding:.2rem .6rem;
-      border-radius:999px;
-      font-size:.7rem;font-weight:800;
-      letter-spacing:.04em;
-    }
-    .badge-blue{background:rgba(59,130,246,.15);color:#60a5fa}
-    .badge-green{background:rgba(34,197,94,.15);color:#4ade80}
-    .badge-red{background:rgba(239,68,68,.15);color:#f87171}
-    .badge-yellow{background:rgba(245,158,11,.15);color:#fbbf24}
-
-    /* ── Upload zone ── */
-    .upload-zone{
-      border:2px dashed var(--adm-border2);
-      border-radius:10px;
-      padding:1.5rem;
-      text-align:center;
-      cursor:pointer;
-      transition:border-color .2s,background .2s;
-      background:var(--adm-bg);
-    }
-    .upload-zone:hover{border-color:var(--adm-accent)}
-    .upload-zone.dragover{border-color:#60a5fa;background:rgba(59,130,246,.07)}
-
-    /* ── Modal ── */
-    .modal-bg{
-      display:none;
-      position:fixed;inset:0;
-      background:rgba(0,0,0,.8);
-      z-index:2000;
-      align-items:center;justify-content:center;
-      padding:1rem;
-      backdrop-filter:blur(4px);
-    }
-    .modal-bg.open{display:flex}
-    .modal-box{
-      background:var(--adm-surface);
-      border:1px solid var(--adm-border2);
-      border-radius:18px;
-      width:100%;max-width:580px;
-      max-height:92vh;
-      overflow-y:auto;
-      -webkit-overflow-scrolling:touch;
-    }
-
-    /* ── IMG preview chips ── */
+    /* IMG PREVIEW CHIPS */
     .img-chip{position:relative;width:80px;height:56px;border-radius:.5rem;overflow:hidden;flex-shrink:0}
     .img-chip img{width:100%;height:100%;object-fit:cover}
-    .img-chip button{
-      position:absolute;top:2px;right:2px;
-      background:rgba(0,0,0,.7);color:#fff;border:none;
-      border-radius:50%;width:18px;height:18px;
-      font-size:11px;cursor:pointer;
-      display:flex;align-items:center;justify-content:center;
-    }
-
-    /* ── Sidebar overlay ── */
-    #sidebar-overlay{
-      display:none;
-      position:fixed;inset:0;
-      background:rgba(0,0,0,.65);
-      z-index:10;
-      backdrop-filter:blur(2px);
-    }
-    #sidebar-overlay.open{display:block}
-
-    /* ── Section headers ── */
-    .adm-section-title{
-      font-size:1.35rem;font-weight:900;
-      color:var(--adm-text);
-      letter-spacing:-.02em;
-    }
-    .adm-section-sub{
-      font-size:.82rem;
-      color:var(--adm-muted);
-      margin-top:.2rem;
-    }
-
-    /* ── Quick action pill ── */
-    .qa-pill{
-      display:inline-flex;align-items:center;gap:.5rem;
-      padding:.5rem 1rem;
-      background:var(--adm-surface2);
-      border:1px solid var(--adm-border2);
-      border-radius:999px;
-      color:var(--adm-text);
-      font-size:.78rem;font-weight:700;
-      cursor:pointer;
-      transition:all .2s;
-      white-space:nowrap;
-      touch-action:manipulation;
-      min-height:36px;
-    }
-    .qa-pill:hover{border-color:var(--adm-accent);color:var(--adm-accent)}
-
-    /* ── Dashboard metric bar ── */
-    .metric-bar{height:4px;border-radius:999px;background:var(--adm-border);overflow:hidden;margin-top:.75rem}
-    .metric-bar-fill{height:100%;border-radius:999px;transition:width 1s cubic-bezier(.4,0,.2,1)}
-
-    /* ── Login card ── */
-    .login-card{
-      background:var(--adm-surface);
-      border:1px solid var(--adm-border2);
-      border-radius:20px;
-      padding:2rem;
-      width:100%;max-width:380px;
-      box-shadow:0 32px 80px rgba(0,0,0,.5);
-    }
-
-    /* ── Scrollbar styling (webkit) ── */
-    #admin-content::-webkit-scrollbar,
-    #admin-sidebar::-webkit-scrollbar,
-    .modal-box::-webkit-scrollbar{width:4px}
-    #admin-content::-webkit-scrollbar-track,
-    #admin-sidebar::-webkit-scrollbar-track,
-    .modal-box::-webkit-scrollbar-track{background:transparent}
-    #admin-content::-webkit-scrollbar-thumb,
-    #admin-sidebar::-webkit-scrollbar-thumb,
-    .modal-box::-webkit-scrollbar-thumb{background:var(--adm-border2);border-radius:999px}
-
-    /* ── Divider ── */
-    .adm-divider{height:1px;background:var(--adm-border);margin:1rem 0}
-
-    /* ── Spinner ── */
-    .adm-spinner{
-      width:18px;height:18px;
-      border:2.5px solid rgba(255,255,255,.2);
-      border-top-color:#fff;
-      border-radius:50%;
-      animation:spin .7s linear infinite;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    /* Responsive: hide table on mobile, show cards */
-    @media(max-width:639px){
-      .vehicles-table-wrap{display:none}
-      .vehicles-cards-wrap{display:flex;flex-direction:column;gap:.75rem}
-    }
-    @media(min-width:640px){
-      .vehicles-table-wrap{display:block}
-      .vehicles-cards-wrap{display:none}
-    }
-
-    /* Reservations card on mobile */
-    @media(max-width:639px){
-      .reserv-table-wrap{display:none}
-      .reserv-cards-wrap{display:flex;flex-direction:column;gap:.75rem}
-    }
-    @media(min-width:640px){
-      .reserv-table-wrap{display:block}
-      .reserv-cards-wrap{display:none}
-    }
-
-    /* Public site table scroll */
-    .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .img-chip button{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
   </style>
 </head>
 <body class="text-gray-800">
@@ -608,19 +205,79 @@
       </div>
     </div>
   </div>
-  <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-100 px-4">
-    <div class="py-3 flex flex-col gap-1">
-      <a href="#inicio"   class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Inicio</a>
-      <a href="#flota"    class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Nuestra Flota</a>
-      <a href="#reservar" class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Reservaciones</a>
-      <a href="#tarifas"  class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Tarifas</a>
-      <a href="#contacto" class="block py-2.5 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm" onclick="closeMenu()">Contacto</a>
-      <button onclick="openAdmin();closeMenu()" class="mt-1 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-3 rounded-lg font-bold text-sm">
-        <i data-lucide="settings" class="w-4 h-4"></i> Panel Admin
+  <!-- Overlay detrás del menú -->
+  <div id="menu-overlay" onclick="closeMenu()"></div>
+
+  <!-- Menú lateral (slide desde derecha) -->
+  <div id="mobile-menu" class="md:hidden">
+    <!-- Header del menú -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#004A99]">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+          <span class="text-white font-black text-xs">RCM</span>
+        </div>
+        <div>
+          <div class="font-black text-white text-sm leading-none">Martínez</div>
+          <div class="text-[10px] text-blue-200 leading-none mt-0.5">Rent a Car</div>
+        </div>
+      </div>
+      <button onclick="closeMenu()" class="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
       </button>
-      <a href="tel:+50378901234" class="mt-1 flex items-center gap-2 bg-[#D32F2F] text-white py-2.5 px-3 rounded-lg font-bold text-sm">
-        <i data-lucide="phone" class="w-4 h-4"></i> Llamar ahora
-      </a>
+    </div>
+    <!-- Links de navegación -->
+    <div class="px-4 pt-4 pb-2">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 mb-2">Navegación</p>
+      <div class="flex flex-col gap-1">
+        <a href="#inicio"   class="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-blue-50 font-semibold text-sm text-gray-700 active:bg-blue-100 transition-colors" onclick="closeMenu()">
+          <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="home" class="w-4 h-4 text-[#004A99]"></i>
+          </span>Inicio
+        </a>
+        <a href="#flota"    class="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-blue-50 font-semibold text-sm text-gray-700 active:bg-blue-100 transition-colors" onclick="closeMenu()">
+          <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="car" class="w-4 h-4 text-[#004A99]"></i>
+          </span>Nuestra Flota
+        </a>
+        <a href="#reservar" class="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-blue-50 font-semibold text-sm text-gray-700 active:bg-blue-100 transition-colors" onclick="closeMenu()">
+          <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="calendar" class="w-4 h-4 text-[#004A99]"></i>
+          </span>Reservaciones
+        </a>
+        <a href="#tarifas"  class="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-blue-50 font-semibold text-sm text-gray-700 active:bg-blue-100 transition-colors" onclick="closeMenu()">
+          <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="tag" class="w-4 h-4 text-[#004A99]"></i>
+          </span>Tarifas
+        </a>
+        <a href="#contacto" class="flex items-center gap-3 py-3 px-3 rounded-xl hover:bg-blue-50 font-semibold text-sm text-gray-700 active:bg-blue-100 transition-colors" onclick="closeMenu()">
+          <span class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="map-pin" class="w-4 h-4 text-[#004A99]"></i>
+          </span>Contacto
+        </a>
+      </div>
+    </div>
+    <!-- Divisor -->
+    <div class="mx-4 my-3 border-t border-gray-100"></div>
+    <!-- Acciones rápidas -->
+    <div class="px-4 pb-6">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400 px-2 mb-2">Acciones</p>
+      <div class="flex flex-col gap-2">
+        <button onclick="openAdmin();closeMenu()" class="flex items-center gap-3 py-3 px-3 rounded-xl bg-gray-50 hover:bg-gray-100 font-bold text-sm text-gray-700 transition-colors w-full text-left">
+          <span class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="settings" class="w-4 h-4 text-gray-600"></i>
+          </span>Panel Admin
+        </button>
+        <a href="tel:+50378901234" class="flex items-center gap-3 py-3 px-3 rounded-xl bg-[#D32F2F] text-white font-bold text-sm transition-colors">
+          <span class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="phone" class="w-4 h-4"></i>
+          </span>Llamar: 7890-1234
+        </a>
+        <a href="https://wa.me/50378901234?text=Hola,%20quiero%20rentar%20un%20carro" target="_blank" class="flex items-center gap-3 py-3 px-3 rounded-xl bg-green-500 text-white font-bold text-sm transition-colors" onclick="closeMenu()">
+          <span class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+          </span>WhatsApp
+        </a>
+      </div>
     </div>
   </div>
 </nav>
@@ -889,274 +546,127 @@
 <div id="toast"></div>
 
 <!-- ══════════════════════════════════════════════════════
-     PANEL ADMINISTRADOR — REDISEÑADO
+     PANEL ADMINISTRADOR
 ══════════════════════════════════════════════════════ -->
 <div id="admin-overlay">
 
-  <!-- ── LOGIN ── -->
+  <!-- LOGIN -->
   <div id="login-screen">
-    <div class="login-card">
-      <!-- Logo -->
-      <div class="text-center mb-7">
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
-          style="background:linear-gradient(135deg,#1d4ed8,#004A99);box-shadow:0 8px 32px rgba(29,78,216,.4)">
-          <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+    <div class="w-full max-w-sm mx-auto px-4">
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 bg-[#004A99] rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="shield" class="w-8 h-8 text-white"></i>
         </div>
-        <h1 class="text-2xl font-black text-white tracking-tight">Panel Admin</h1>
-        <p class="text-sm mt-1" style="color:var(--adm-muted)">Renta Car Martínez</p>
+        <h1 class="text-2xl font-black text-white mb-1">Panel Admin</h1>
+        <p class="text-slate-400 text-sm">Renta Car Martínez</p>
       </div>
-
-      <div class="space-y-4">
-        <div>
-          <label class="a-label">Correo electrónico</label>
-          <input type="email" id="login-user" class="a-input" placeholder="admin@tucorreo.com" />
+      <div class="admin-card">
+        <div class="space-y-4">
+          <div><label class="a-label">Correo electrónico</label><input type="email" id="login-user" class="a-input" placeholder="admin@tucorreo.com" /></div>
+          <div><label class="a-label">Contraseña</label><input type="password" id="login-pass" class="a-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+          <p id="login-error" class="text-red-400 text-sm text-center hidden">Correo o contraseña incorrectos.</p>
+          <button onclick="doLogin()" id="login-btn" class="w-full btn-primary justify-center py-3 text-base">Iniciar sesión</button>
         </div>
-        <div>
-          <label class="a-label">Contraseña</label>
-          <input type="password" id="login-pass" class="a-input" placeholder="••••••••"
-            onkeydown="if(event.key==='Enter')doLogin()" />
-        </div>
-        <p id="login-error" class="text-red-400 text-sm text-center hidden bg-red-500/10 rounded-lg py-2">
-          Correo o contraseña incorrectos.
-        </p>
-        <button onclick="doLogin()" id="login-btn" class="btn-primary w-full justify-center text-base py-3.5">
-          Iniciar sesión
-        </button>
       </div>
-
-      <button onclick="closeAdmin()"
-        class="mt-5 w-full text-center text-sm transition-colors py-2"
-        style="color:var(--adm-muted)">
-        ← Volver al sitio
-      </button>
+      <button onclick="closeAdmin()" class="mt-4 w-full text-slate-600 hover:text-slate-400 text-sm transition-colors">← Volver al sitio</button>
     </div>
   </div>
 
-  <!-- ── PANEL PRINCIPAL ── -->
+  <!-- PANEL PRINCIPAL -->
   <div id="admin-panel">
-
-    <!-- TOP BAR -->
+    <!-- TOP BAR ADMIN -->
     <div class="admin-topbar">
       <div class="flex items-center gap-3">
-        <!-- Hamburger mobile -->
-        <button id="sidebar-toggle" onclick="toggleSidebar()"
-          class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl transition-colors"
-          style="background:var(--adm-surface2);color:var(--adm-muted)">
+        <!-- Hamburger en móvil -->
+        <button id="sidebar-toggle" onclick="toggleSidebar()" class="md:hidden p-1.5 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
-        <!-- Brand -->
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style="background:linear-gradient(135deg,#1d4ed8,#004A99)">
-            <span class="text-white font-black text-[10px]">RCM</span>
-          </div>
-          <div class="hidden sm:block">
-            <div class="text-white font-black text-sm leading-none">Martínez</div>
-            <div class="text-[10px] font-semibold leading-none mt-0.5" style="color:var(--adm-muted)">Admin Panel</div>
-          </div>
+        <div class="w-7 h-7 bg-[#004A99] rounded-lg flex items-center justify-center">
+          <span class="text-white font-black text-[10px]">RCM</span>
         </div>
+        <span class="text-white font-bold text-sm hidden sm:block">Admin Panel</span>
       </div>
-
       <div class="flex items-center gap-2">
-        <span id="admin-email-label" class="hidden sm:block text-xs px-3 py-1 rounded-full"
-          style="color:var(--adm-muted);background:var(--adm-surface2)"></span>
-        <button onclick="closeAdmin()" class="btn-ghost text-xs py-2 px-3 gap-1.5">
-          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Sitio</span>
-        </button>
-        <button onclick="doLogout()" class="btn-danger text-xs py-2 px-3 gap-1.5">
-          <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
-          <span class="hidden sm:inline">Salir</span>
-        </button>
+        <span id="admin-email-label" class="text-slate-400 text-xs hidden sm:block"></span>
+        <button onclick="closeAdmin()" class="btn-ghost text-xs py-1.5 px-3"><i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Sitio</span></button>
+        <button onclick="doLogout()" class="btn-danger text-xs py-1.5 px-3"><i data-lucide="log-out" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Salir</span></button>
       </div>
     </div>
 
     <!-- BODY -->
     <div class="admin-body">
+      <!-- Overlay semitransparente que cierra el sidebar en móvil -->
+      <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/60 z-10 md:hidden"></div>
 
-      <!-- Overlay mobile sidebar -->
-      <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-      <!-- ── SIDEBAR ── -->
+      <!-- SIDEBAR -->
       <aside id="admin-sidebar">
-        <!-- Brand en sidebar (mobile) -->
-        <div class="px-4 py-5 border-b md:hidden" style="border-color:var(--adm-border)">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center"
-              style="background:linear-gradient(135deg,#1d4ed8,#004A99)">
-              <span class="text-white font-black text-xs">RCM</span>
-            </div>
-            <div>
-              <div class="text-white font-black text-sm">Martínez</div>
-              <div class="text-xs" style="color:var(--adm-muted)">Admin Panel</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Nav -->
         <nav class="flex-1 px-3 py-4 space-y-1">
           <div class="admin-nav-link active" onclick="showTab('dashboard',this)">
-            <div class="nav-icon"><i data-lucide="layout-dashboard" class="w-4 h-4"></i></div>
-            <span>Dashboard</span>
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
           </div>
           <div class="admin-nav-link" onclick="showTab('vehicles',this)">
-            <div class="nav-icon"><i data-lucide="car" class="w-4 h-4"></i></div>
-            <span>Vehículos</span>
+            <i data-lucide="car" class="w-4 h-4"></i> Vehículos
           </div>
           <div class="admin-nav-link" onclick="showTab('categories',this)">
-            <div class="nav-icon"><i data-lucide="tag" class="w-4 h-4"></i></div>
-            <span>Categorías</span>
+            <i data-lucide="tag" class="w-4 h-4"></i> Categorías
           </div>
           <div class="admin-nav-link" onclick="showTab('reservations',this)">
-            <div class="nav-icon"><i data-lucide="calendar-check" class="w-4 h-4"></i></div>
-            <span>Reservaciones</span>
+            <i data-lucide="calendar-check" class="w-4 h-4"></i> Reservaciones
           </div>
         </nav>
-
-        <!-- Footer sidebar -->
-        <div class="px-4 py-4 border-t" style="border-color:var(--adm-border)">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black"
-              style="background:var(--adm-accent-soft);color:var(--adm-accent)">
-              A
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs font-bold truncate" style="color:var(--adm-text)">Administrador</div>
-              <div class="text-[10px] truncate" style="color:var(--adm-muted)" id="sidebar-email"></div>
-            </div>
-          </div>
-        </div>
       </aside>
 
-      <!-- ── CONTENT ── -->
+      <!-- CONTENT -->
       <main id="admin-content">
 
-        <!-- ════════ DASHBOARD ════════ -->
+        <!-- ── DASHBOARD ── -->
         <div id="tab-dashboard" class="p-4 sm:p-6 space-y-6">
-
-          <!-- Header -->
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <div class="adm-section-title">Dashboard</div>
-              <div class="adm-section-sub">Resumen general del negocio</div>
-            </div>
-            <div class="text-xs px-3 py-1.5 rounded-full font-semibold" style="background:var(--adm-surface2);color:var(--adm-muted)" id="dash-date"></div>
+          <div>
+            <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Dashboard</h2>
+            <p class="text-slate-400 text-sm">Resumen general del negocio</p>
           </div>
-
-          <!-- Stat cards -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <!-- Total -->
-            <div class="stat-card">
-              <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-800 uppercase tracking-wider" style="color:var(--adm-muted);font-weight:800">Vehículos</div>
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(59,130,246,.12)">
-                  <i data-lucide="car" class="w-4 h-4" style="color:var(--adm-accent)"></i>
-                </div>
-              </div>
-              <div class="text-3xl font-black" style="color:var(--adm-text)" id="d-total">0</div>
-              <div class="metric-bar mt-2"><div class="metric-bar-fill" style="width:0%;background:var(--adm-accent)" id="d-total-bar"></div></div>
-            </div>
-            <!-- Disponibles -->
-            <div class="stat-card">
-              <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-800 uppercase tracking-wider" style="color:var(--adm-muted);font-weight:800">Disponibles</div>
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(34,197,94,.12)">
-                  <i data-lucide="check-circle" class="w-4 h-4" style="color:var(--adm-green)"></i>
-                </div>
-              </div>
-              <div class="text-3xl font-black" style="color:var(--adm-green)" id="d-avail">0</div>
-              <div class="metric-bar mt-2"><div class="metric-bar-fill" style="width:0%;background:var(--adm-green)" id="d-avail-bar"></div></div>
-            </div>
-            <!-- Categorías -->
-            <div class="stat-card">
-              <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-800 uppercase tracking-wider" style="color:var(--adm-muted);font-weight:800">Categorías</div>
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(245,158,11,.12)">
-                  <i data-lucide="tag" class="w-4 h-4" style="color:var(--adm-yellow)"></i>
-                </div>
-              </div>
-              <div class="text-3xl font-black" style="color:var(--adm-yellow)" id="d-cats">0</div>
-              <div class="metric-bar mt-2"><div class="metric-bar-fill" style="width:100%;background:var(--adm-yellow)"></div></div>
-            </div>
-            <!-- Reservas -->
-            <div class="stat-card">
-              <div class="flex items-center justify-between mb-3">
-                <div class="text-xs font-800 uppercase tracking-wider" style="color:var(--adm-muted);font-weight:800">Reservas</div>
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(239,68,68,.12)">
-                  <i data-lucide="calendar-check" class="w-4 h-4" style="color:var(--adm-red)"></i>
-                </div>
-              </div>
-              <div class="text-3xl font-black" style="color:var(--adm-red)" id="d-reserv">0</div>
-              <div class="metric-bar mt-2"><div class="metric-bar-fill" style="width:100%;background:var(--adm-red)"></div></div>
-            </div>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Vehículos</div><div class="text-2xl sm:text-3xl font-black text-white" id="d-total">0</div></div>
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Disponibles</div><div class="text-2xl sm:text-3xl font-black text-green-400" id="d-avail">0</div></div>
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Categorías</div><div class="text-2xl sm:text-3xl font-black text-blue-400" id="d-cats">0</div></div>
+            <div class="stat-card"><div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Reservas</div><div class="text-2xl sm:text-3xl font-black text-yellow-400" id="d-reserv">0</div></div>
           </div>
-
-          <!-- Quick actions -->
-          <div class="flex flex-wrap gap-2">
-            <button onclick="openVehicleModal()" class="qa-pill">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo vehículo
-            </button>
-            <button onclick="openCatModal()" class="qa-pill">
-              <i data-lucide="tag" class="w-3.5 h-3.5"></i> Nueva categoría
-            </button>
-            <button onclick="showTab('reservations',null)" class="qa-pill">
-              <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Ver reservas
-            </button>
-          </div>
-
-          <!-- Recent vehicles -->
           <div class="admin-card">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="font-black text-sm" style="color:var(--adm-text)">
-                Vehículos recientes
-              </h3>
-              <button onclick="showTab('vehicles',null)" class="qa-pill text-xs">Ver todos →</button>
-            </div>
-            <div id="d-vehicles-preview" class="space-y-2.5"></div>
+            <h3 class="text-white font-bold mb-4 flex items-center gap-2 text-sm sm:text-base">
+              <i data-lucide="car" class="w-4 h-4 text-[#004A99]"></i> Vehículos Recientes
+            </h3>
+            <div id="d-vehicles-preview" class="space-y-3"></div>
+            <button onclick="showTab('vehicles',null)" class="mt-4 btn-primary text-xs sm:text-sm">Ver todos →</button>
           </div>
         </div>
 
-        <!-- ════════ VEHÍCULOS ════════ -->
-        <div id="tab-vehicles" class="p-4 sm:p-6 space-y-5 hidden">
+        <!-- ── VEHÍCULOS ── -->
+        <div id="tab-vehicles" class="p-4 sm:p-6 space-y-6 hidden">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div class="adm-section-title">Vehículos</div>
-              <div class="adm-section-sub">Gestiona tu flota completa</div>
+              <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Vehículos</h2>
+              <p class="text-slate-400 text-sm">Gestiona tu flota completa</p>
             </div>
             <button onclick="openVehicleModal()" class="btn-primary self-start sm:self-auto">
               <i data-lucide="plus" class="w-4 h-4"></i> Agregar Vehículo
             </button>
           </div>
-
-          <!-- MOBILE: Cards -->
-          <div class="vehicles-cards-wrap" id="vehicles-cards"></div>
-
-          <!-- DESKTOP: Table -->
-          <div class="vehicles-table-wrap admin-card p-0 overflow-hidden">
-            <div class="table-scroll">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th style="width:80px">Imagen</th>
-                    <th>Nombre</th>
-                    <th>Categoría</th>
-                    <th>Precio/día</th>
-                    <th>Estado</th>
-                    <th style="width:120px">Acciones</th>
-                  </tr>
-                </thead>
+          <div class="admin-card p-0 overflow-hidden">
+            <div class="table-scroll" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+              <table class="admin-table" style="min-width:640px;">
+                <thead><tr><th>Imagen</th><th>Nombre</th><th class="hidden md:table-cell">Categoría</th><th>Precio/día</th><th class="hidden sm:table-cell">Estado</th><th>Acciones</th></tr></thead>
                 <tbody id="vehicles-table"></tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- ════════ CATEGORÍAS ════════ -->
-        <div id="tab-categories" class="p-4 sm:p-6 space-y-5 hidden">
+        <!-- ── CATEGORÍAS ── -->
+        <div id="tab-categories" class="p-4 sm:p-6 space-y-6 hidden">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div class="adm-section-title">Categorías</div>
-              <div class="adm-section-sub">Define los tipos de vehículos</div>
+              <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Categorías</h2>
+              <p class="text-slate-400 text-sm">Define los tipos de vehículos</p>
             </div>
             <button onclick="openCatModal()" class="btn-primary self-start sm:self-auto">
               <i data-lucide="plus" class="w-4 h-4"></i> Nueva Categoría
@@ -1165,35 +675,21 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="categories-grid"></div>
         </div>
 
-        <!-- ════════ RESERVACIONES ════════ -->
-        <div id="tab-reservations" class="p-4 sm:p-6 space-y-5 hidden">
+        <!-- ── RESERVACIONES ── -->
+        <div id="tab-reservations" class="p-4 sm:p-6 space-y-6 hidden">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <div class="adm-section-title">Reservaciones</div>
-              <div class="adm-section-sub">Solicitudes recibidas</div>
+              <h2 class="text-xl sm:text-2xl font-black text-white mb-1">Reservaciones</h2>
+              <p class="text-slate-400 text-sm">Solicitudes recibidas</p>
             </div>
-            <button onclick="clearReservations()" class="btn-ghost text-sm self-start sm:self-auto">
+            <button onclick="clearReservations()" class="btn-ghost text-xs sm:text-sm self-start sm:self-auto">
               <i data-lucide="trash-2" class="w-4 h-4"></i> Limpiar todo
             </button>
           </div>
-
-          <!-- MOBILE: Reserv cards -->
-          <div class="reserv-cards-wrap" id="reserv-cards"></div>
-
-          <!-- DESKTOP: Table -->
-          <div class="reserv-table-wrap admin-card p-0 overflow-hidden">
-            <div class="table-scroll">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Fecha</th>
-                    <th>Nombre</th>
-                    <th>Teléfono</th>
-                    <th>Tipo</th>
-                    <th>Días</th>
-                    <th>WA</th>
-                  </tr>
-                </thead>
+          <div class="admin-card p-0 overflow-hidden">
+            <div class="table-scroll" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+              <table class="admin-table" style="min-width:560px;">
+                <thead><tr><th class="whitespace-nowrap">Fecha</th><th>Nombre</th><th class="hidden sm:table-cell">Teléfono</th><th class="hidden md:table-cell">Tipo</th><th>Días</th><th>WA</th></tr></thead>
                 <tbody id="reservations-table"></tbody>
               </table>
             </div>
@@ -1208,53 +704,40 @@
 <!-- ══ MODAL: VEHÍCULO ══ -->
 <div class="modal-bg" id="vehicle-modal">
   <div class="modal-box">
-    <div class="flex items-center justify-between px-5 py-4 border-b sticky top-0 z-10"
-      style="background:var(--adm-surface);border-color:var(--adm-border)">
-      <h3 class="font-black text-lg" style="color:var(--adm-text)" id="vm-title">Agregar Vehículo</h3>
-      <button onclick="closeVehicleModal()"
-        class="w-9 h-9 rounded-lg flex items-center justify-center transition-colors"
-        style="color:var(--adm-muted);background:var(--adm-surface2)">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700 sticky top-0 bg-[#1e293b] z-10">
+      <h3 class="text-white font-black text-lg" id="vm-title">Agregar Vehículo</h3>
+      <button onclick="closeVehicleModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
-
     <div class="px-5 py-5 space-y-4">
 
-      <!-- IMÁGENES -->
+      <!-- IMÁGENES MÚLTIPLES -->
       <div>
         <label class="a-label">Imágenes del Vehículo</label>
         <div id="imgs-preview" class="flex flex-wrap gap-2 mb-3"></div>
-        <div class="upload-zone" id="upload-zone"
-          onclick="document.getElementById('img-file').click()"
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('img-file').click()"
           ondragover="event.preventDefault();this.classList.add('dragover')"
           ondragleave="this.classList.remove('dragover')"
           ondrop="handleDrop(event)">
           <div id="upload-placeholder">
-            <i data-lucide="cloud-upload" class="w-8 h-8 mx-auto mb-2" style="color:var(--adm-muted)"></i>
-            <p class="text-sm" style="color:var(--adm-muted)">
-              <span style="color:var(--adm-accent);font-weight:700">Click</span> o arrastra para subir
-            </p>
-            <p class="text-xs mt-1" style="color:var(--adm-border2)">PNG, JPG, WEBP — Subida a Cloudinary</p>
+            <i data-lucide="cloud-upload" class="w-8 h-8 text-slate-500 mx-auto mb-2"></i>
+            <p class="text-slate-400 text-sm"><span class="text-blue-400 font-semibold">Click</span> o arrastra para subir</p>
+            <p class="text-slate-600 text-xs mt-1">PNG, JPG, WEBP — Subida automática a Cloudinary</p>
           </div>
           <div id="upload-loading" class="hidden text-center">
-            <div class="adm-spinner mx-auto" style="border-top-color:var(--adm-accent);border-color:rgba(59,130,246,.2)"></div>
-            <p class="text-sm mt-2" style="color:var(--adm-muted)">Subiendo…</p>
+            <div class="spinner mx-auto" style="display:block;border-top-color:#60a5fa;border-color:rgba(96,165,250,.3)"></div>
+            <p class="text-slate-400 text-sm mt-2">Subiendo…</p>
           </div>
           <input type="file" id="img-file" accept="image/*" class="hidden" onchange="uploadImg(this)" multiple />
         </div>
         <p id="img-error" class="text-red-400 text-xs mt-1 hidden"></p>
-        <div class="mt-3">
+        <div class="mt-2">
           <label class="a-label">O pega URL directamente</label>
           <div class="flex gap-2">
             <input type="url" id="vm-img-url" class="a-input flex-1" placeholder="https://..." />
-            <button type="button" onclick="addUrlImg()" class="btn-primary text-xs px-3 py-1.5 flex-shrink-0 min-h-0" style="min-height:auto">
-              + Agregar
-            </button>
+            <button type="button" onclick="addUrlImg()" class="btn-primary text-xs px-3 py-1.5 flex-shrink-0">+ Agregar</button>
           </div>
         </div>
       </div>
-
-      <div class="adm-divider"></div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -1266,61 +749,42 @@
           <select id="vm-cat" class="a-input"></select>
         </div>
       </div>
-
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="a-label">Precio/Día (USD)</label>
-          <input type="number" id="vm-price" class="a-input" placeholder="45 — vacío = Consultar" min="1" />
+          <label class="a-label">Precio/Día (USD) — Vacío = Consultar</label>
+          <input type="number" id="vm-price" class="a-input" placeholder="Ej: 45 — opcional" min="1" />
         </div>
         <div>
           <label class="a-label">Pasajeros</label>
           <input type="number" id="vm-passengers" class="a-input" placeholder="5" min="1" max="20" />
         </div>
       </div>
-
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="a-label">Transmisión</label>
-          <select id="vm-trans" class="a-input">
-            <option>Automático</option>
-            <option>Manual</option>
-          </select>
+          <select id="vm-trans" class="a-input"><option>Automático</option><option>Manual</option></select>
         </div>
         <div>
           <label class="a-label">Combustible</label>
-          <select id="vm-fuel" class="a-input">
-            <option>Gasolina</option>
-            <option>Diesel</option>
-            <option>Híbrido</option>
-            <option>Eléctrico</option>
-          </select>
+          <select id="vm-fuel" class="a-input"><option>Gasolina</option><option>Diesel</option><option>Híbrido</option><option>Eléctrico</option></select>
         </div>
       </div>
-
       <div>
         <label class="a-label">Descripción</label>
         <input type="text" id="vm-desc" class="a-input" placeholder="Breve descripción del vehículo" />
       </div>
-
-      <div class="p-4 rounded-xl" style="background:var(--adm-bg);border:1px solid var(--adm-border)">
+      <div>
         <label class="toggle-wrap">
           <div class="toggle on" id="vm-avail-toggle" onclick="this.classList.toggle('on')"></div>
-          <div>
-            <span class="text-sm font-bold" style="color:var(--adm-text)">Disponible para renta</span>
-            <p class="text-xs mt-0.5" style="color:var(--adm-muted)">Si está desactivado aparecerá como "Rentado"</p>
-          </div>
+          <span class="text-slate-300 text-sm font-medium">Disponible para renta</span>
         </label>
       </div>
-
-      <p id="vm-error" class="text-red-400 text-sm hidden px-3 py-2 rounded-lg bg-red-500/10"></p>
+      <p id="vm-error" class="text-red-400 text-sm hidden"></p>
     </div>
-
-    <div class="px-5 pb-5 flex gap-3 justify-end sticky bottom-0 pt-3 border-t"
-      style="background:var(--adm-surface);border-color:var(--adm-border)">
+    <div class="px-5 pb-5 flex gap-3 justify-end sticky bottom-0 bg-[#1e293b] border-t border-slate-700 pt-3">
       <button onclick="closeVehicleModal()" class="btn-ghost">Cancelar</button>
       <button onclick="saveVehicle()" class="btn-primary">
-        <i data-lucide="save" class="w-4 h-4"></i>
-        <span id="vm-save-text">Guardar</span>
+        <i data-lucide="save" class="w-4 h-4"></i> <span id="vm-save-text">Guardar</span>
       </button>
     </div>
   </div>
@@ -1328,48 +792,29 @@
 
 <!-- ══ MODAL: CATEGORÍA ══ -->
 <div class="modal-bg" id="cat-modal">
-  <div class="modal-box" style="max-width:420px">
-    <div class="flex items-center justify-between px-5 py-4 border-b"
-      style="border-color:var(--adm-border)">
-      <h3 class="font-black text-lg" style="color:var(--adm-text)" id="cm-title">Nueva Categoría</h3>
-      <button onclick="closeCatModal()"
-        class="w-9 h-9 rounded-lg flex items-center justify-center"
-        style="color:var(--adm-muted);background:var(--adm-surface2)">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+  <div class="modal-box max-w-sm">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-700">
+      <h3 class="text-white font-black text-lg" id="cm-title">Nueva Categoría</h3>
+      <button onclick="closeCatModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <div class="px-5 py-5 space-y-4">
-      <div>
-        <label class="a-label">Nombre *</label>
-        <input type="text" id="cm-name" class="a-input" placeholder="Pick Up, Sedán, Camioneta…" />
-      </div>
+      <div><label class="a-label">Nombre *</label><input type="text" id="cm-name" class="a-input" placeholder="Pick Up, Sedán, Camioneta…" /></div>
       <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="a-label">Precio/día (USD)</label>
-          <input type="number" id="cm-price" class="a-input" placeholder="50" min="1" />
-        </div>
-        <div>
-          <label class="a-label">Precio semana</label>
-          <input type="number" id="cm-week" class="a-input" placeholder="300" min="1" />
-        </div>
+        <div><label class="a-label">Precio/día (USD)</label><input type="number" id="cm-price" class="a-input" placeholder="50" min="1" /></div>
+        <div><label class="a-label">Precio semana</label><input type="number" id="cm-week" class="a-input" placeholder="300" min="1" /></div>
       </div>
-      <div>
-        <label class="a-label">Lo que incluye</label>
-        <input type="text" id="cm-inc" class="a-input" placeholder="Seguro · Km ilim." />
-      </div>
-      <p id="cm-error" class="text-red-400 text-sm hidden px-3 py-2 rounded-lg bg-red-500/10"></p>
+      <div><label class="a-label">Lo que incluye</label><input type="text" id="cm-inc" class="a-input" placeholder="Seguro · Km ilim." /></div>
+      <p id="cm-error" class="text-red-400 text-sm hidden"></p>
     </div>
-    <div class="px-5 pb-5 flex gap-3 justify-end border-t pt-4" style="border-color:var(--adm-border)">
+    <div class="px-5 pb-5 flex gap-3 justify-end">
       <button onclick="closeCatModal()" class="btn-ghost">Cancelar</button>
-      <button onclick="saveCat()" class="btn-primary">
-        <i data-lucide="save" class="w-4 h-4"></i> Guardar
-      </button>
+      <button onclick="saveCat()" class="btn-primary"><i data-lucide="save" class="w-4 h-4"></i> Guardar</button>
     </div>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     FIREBASE + LÓGICA (SIN MODIFICAR)
+     FIREBASE + LÓGICA
 ══════════════════════════════════════════════════ -->
 <script type="module">
 /* ══════════════════════════════════════════════════
@@ -1416,12 +861,13 @@ let categories       = [];
 let reservations     = [];
 let editingVehicleId = null;
 let editingCatId     = null;
-let pendingImgs      = [];
+let pendingImgs      = [];   // array de URLs (múltiples imágenes)
 let currentFilter    = "todos";
 let seeded           = false;
 
 /* ══════════════════════════════════════════════════
-   🌱  DATOS SEMILLA
+   🌱  DATOS SEMILLA — se cargan automáticamente
+       la primera vez que las colecciones están vacías
 ══════════════════════════════════════════════════ */
 const SEED_CATS = [
   { nombre:"Sedán",        precioDia:42, precioSemana:250, incluye:"Seguro · Km ilim. · A/C" },
@@ -1467,7 +913,7 @@ async function seedDataIfEmpty() {
     } else {
       seeded = true;
     }
-  } catch { /* sin permisos todavía */ }
+  } catch { /* sin permisos todavía — ok */ }
 }
 
 /* ══════════════════════════════════════════════════
@@ -1492,7 +938,8 @@ initListeners();
 seedDataIfEmpty();
 
 /* ══════════════════════════════════════════════════
-   🖼️  HELPERS
+   🖼️  HELPERS: IMAGEN PRINCIPAL DEL VEHÍCULO
+   Soporta imagenes:[] (nuevo) e imagen:string (legado)
 ══════════════════════════════════════════════════ */
 function getImgs(v) {
   if (v.imagenes && v.imagenes.length) return v.imagenes;
@@ -1558,6 +1005,7 @@ function renderCars() {
   lucide.createIcons();
 }
 
+/* Slider de imágenes en las cards */
 window.slideImg = function(e, id, dir) {
   e.stopPropagation();
   const wrap = document.getElementById("sl-"+id);
@@ -1644,207 +1092,95 @@ window.reserveWA = function(nombre, precio) {
 ══════════════════════════════════════════════════ */
 function refreshAdminData() {
   if (!document.getElementById("d-total")) return;
-
-  const total = vehicles.length;
   const avail = vehicles.filter(v=>v.disponible).length;
-
-  document.getElementById("d-total").textContent  = total;
+  document.getElementById("d-total").textContent  = vehicles.length;
   document.getElementById("d-avail").textContent  = avail;
   document.getElementById("d-cats").textContent   = categories.length;
   document.getElementById("d-reserv").textContent = reservations.length;
 
-  // Metric bars
-  const pct = total > 0 ? Math.round((avail/total)*100) : 0;
-  const tb = document.getElementById("d-total-bar");
-  const ab = document.getElementById("d-avail-bar");
-  if (tb) tb.style.width = "100%";
-  if (ab) ab.style.width = pct + "%";
-
-  // Dashboard date
-  const dd = document.getElementById("dash-date");
-  if (dd) dd.textContent = new Date().toLocaleDateString("es-SV",{weekday:"long",day:"numeric",month:"long"});
-
   // Dashboard preview
   document.getElementById("d-vehicles-preview").innerHTML = vehicles.slice(0,5).map(v => {
     const img = getImgs(v)[0];
-    return `<div class="flex items-center gap-3 p-3 rounded-xl transition-colors" style="background:rgba(255,255,255,.03);border:1px solid var(--adm-border)">
-      <img src="${img}" alt="${v.nombre}"
-        class="w-14 h-10 object-cover rounded-lg flex-shrink-0"
-        style="background:var(--adm-surface2)"
+    return `<div class="flex items-center gap-3 p-3 bg-slate-800/50 rounded-lg">
+      <img src="${img}" alt="${v.nombre}" class="w-14 h-10 object-cover rounded-md bg-slate-700 flex-shrink-0"
         onerror="this.src='${FALLBACK}'" />
       <div class="flex-1 min-w-0">
-        <p class="text-sm font-bold truncate" style="color:var(--adm-text)">${v.nombre}</p>
-        <p class="text-xs truncate" style="color:var(--adm-muted)">${v.categoria} · ${v.precio ? "$"+v.precio+"/día" : "Consultar"}</p>
+        <p class="text-white text-sm font-bold truncate">${v.nombre}</p>
+        <p class="text-slate-400 text-xs">${v.categoria} · ${v.precio ? "$"+v.precio+"/día" : "Consultar"}</p>
       </div>
-      <span class="badge flex-shrink-0 ${v.disponible ? "badge-green" : "badge-red"}">
-        ${v.disponible ? "Disponible" : "Rentado"}
+      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold flex-shrink-0 ${v.disponible?"bg-green-500/20 text-green-400":"bg-red-500/20 text-red-400"}">
+        ${v.disponible?"Disponible":"Rentado"}
       </span>
-    </div>`;
-  }).join("");
+    </div>`;}).join("");
 
-  // ── VEHICLES TABLE (desktop) ──
+  // Tabla vehículos
   document.getElementById("vehicles-table").innerHTML = vehicles.length
     ? vehicles.map(v => {
       const img = getImgs(v)[0];
-      const priceLabel = v.precio
-        ? `<span class="font-black" style="color:var(--adm-green)">$${v.precio}</span>`
-        : `<span class="badge badge-yellow">Consultar</span>`;
+      const priceLabel = v.precio ? `$${v.precio}` : `<span class="text-slate-400 text-xs">Consultar</span>`;
       return `<tr>
-        <td>
-          <img src="${img}" class="w-16 h-11 object-cover rounded-lg"
-            style="background:var(--adm-surface2)"
-            onerror="this.src='${FALLBACK}'" />
-        </td>
-        <td>
-          <p class="font-bold text-sm" style="color:var(--adm-text)">${v.nombre}</p>
-          <p class="text-xs truncate max-w-[180px]" style="color:var(--adm-muted)">${v.descripcion||""}</p>
-        </td>
-        <td><span class="badge badge-blue">${v.categoria}</span></td>
-        <td>${priceLabel}</td>
-        <td>
-          <label class="toggle-wrap">
+        <td><img src="${img}" class="w-16 h-11 object-cover rounded-lg bg-slate-700" onerror="this.src='${FALLBACK}'" /></td>
+        <td><p class="font-bold text-white text-sm">${v.nombre}</p><p class="text-slate-500 text-xs">${v.descripcion||""}</p></td>
+        <td class="hidden md:table-cell"><span class="px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded-full text-xs font-bold">${v.categoria}</span></td>
+        <td class="font-black text-green-400">${priceLabel}</td>
+        <td class="hidden sm:table-cell">
+          <div class="toggle-wrap">
             <div class="toggle ${v.disponible?"on":""}" onclick="toggleAvail('${v.id}',this)"></div>
-            <span class="text-xs font-semibold" style="color:var(--adm-muted)">${v.disponible?"Disponible":"Rentado"}</span>
-          </label>
+            <span class="text-slate-400 text-xs">${v.disponible?"Disponible":"Rentado"}</span>
+          </div>
         </td>
         <td>
-          <div class="flex gap-1.5">
-            <button onclick="openVehicleModal('${v.id}')" class="btn-icon btn-icon-edit" title="Editar">
-              <i data-lucide="edit-2" class="w-4 h-4"></i>
-            </button>
-            <button onclick="deleteVehicle('${v.id}')" class="btn-icon btn-icon-del" title="Eliminar">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
+          <div class="flex gap-1.5 flex-wrap">
+            <button onclick="openVehicleModal('${v.id}')" class="btn-ghost text-xs py-1 px-2"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+            <button onclick="deleteVehicle('${v.id}')" class="btn-danger text-xs py-1 px-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
           </div>
         </td>
-      </tr>`;
-    }).join("")
-    : `<tr><td colspan="6" class="text-center py-16" style="color:var(--adm-muted)">No hay vehículos. Agrega el primero.</td></tr>`;
+      </tr>`;}).join("")
+    : `<tr><td colspan="6" class="text-center text-slate-500 py-12">No hay vehículos. Agrega el primero.</td></tr>`;
 
-  // ── VEHICLES CARDS (mobile) ──
-  const cardsWrap = document.getElementById("vehicles-cards");
-  if (cardsWrap) {
-    cardsWrap.innerHTML = vehicles.length
-      ? vehicles.map(v => {
-        const img = getImgs(v)[0];
-        return `<div class="vehicle-card-mobile">
-          <img src="${img}" class="vc-img" style="min-height:90px" onerror="this.src='${FALLBACK}'" />
-          <div class="vc-body">
-            <div class="flex items-start justify-between gap-1">
-              <p class="text-sm font-black leading-tight" style="color:var(--adm-text)">${v.nombre}</p>
-              <span class="badge flex-shrink-0 ${v.disponible ? "badge-green" : "badge-red"}" style="font-size:.6rem">
-                ${v.disponible ? "OK" : "Rentado"}
-              </span>
-            </div>
-            <span class="badge badge-blue" style="font-size:.65rem;width:fit-content">${v.categoria}</span>
-            <div class="flex items-center justify-between mt-1">
-              <span class="text-sm font-black" style="color:var(--adm-green)">${v.precio ? "$"+v.precio+"/día" : "Consultar"}</span>
-            </div>
-            <label class="toggle-wrap mt-1">
-              <div class="toggle ${v.disponible?"on":""}" onclick="toggleAvail('${v.id}',this)" style="width:36px;height:20px"></div>
-              <span style="color:var(--adm-muted);font-size:.7rem">${v.disponible?"Disponible":"Rentado"}</span>
-            </label>
-          </div>
-          <div class="vc-actions">
-            <button onclick="openVehicleModal('${v.id}')" class="btn-icon btn-icon-edit" title="Editar" style="width:40px;height:40px">
-              <i data-lucide="edit-2" class="w-4 h-4"></i>
-            </button>
-            <button onclick="deleteVehicle('${v.id}')" class="btn-icon btn-icon-del" title="Eliminar" style="width:40px;height:40px">
-              <i data-lucide="trash-2" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>`;
-      }).join("")
-      : `<div class="text-center py-16" style="color:var(--adm-muted)">No hay vehículos. Agrega el primero.</div>`;
-  }
-
-  // ── CATEGORIES GRID ──
+  // Grid categorías
   document.getElementById("categories-grid").innerHTML = categories.map(c => `
-    <div class="admin-card">
-      <div class="flex items-start justify-between gap-2 mb-4">
+    <div class="admin-card flex flex-col gap-3">
+      <div class="flex items-start justify-between gap-2">
         <div>
-          <h4 class="font-black" style="color:var(--adm-text)">${c.nombre}</h4>
-          <p class="text-xs mt-0.5" style="color:var(--adm-muted)">${c.incluye||""}</p>
+          <h4 class="text-white font-bold">${c.nombre}</h4>
+          <p class="text-slate-400 text-xs mt-0.5">${c.incluye||""}</p>
         </div>
-        <div class="flex gap-1.5 flex-shrink-0">
-          <button onclick="openCatModal('${c.id}')" class="btn-icon btn-icon-edit" style="width:36px;height:36px">
-            <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
-          </button>
-          <button onclick="deleteCat('${c.id}')" class="btn-icon btn-icon-del" style="width:36px;height:36px">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-          </button>
+        <div class="flex gap-1 flex-shrink-0">
+          <button onclick="openCatModal('${c.id}')" class="btn-ghost text-xs py-1 px-2"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+          <button onclick="deleteCat('${c.id}')"     class="btn-danger text-xs py-1 px-2"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div class="rounded-xl py-3 text-center" style="background:var(--adm-bg);border:1px solid var(--adm-border)">
-          <div class="text-lg font-black" style="color:var(--adm-green)">${c.precioDia?"$"+c.precioDia:"—"}</div>
-          <div class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--adm-muted)">por día</div>
+      <div class="flex gap-3 text-center">
+        <div class="flex-1 bg-slate-800 rounded-lg py-2">
+          <div class="text-green-400 font-black">${c.precioDia?"$"+c.precioDia:"—"}</div>
+          <div class="text-slate-500 text-[10px]">por día</div>
         </div>
-        <div class="rounded-xl py-3 text-center" style="background:var(--adm-bg);border:1px solid var(--adm-border)">
-          <div class="text-lg font-black" style="color:var(--adm-accent)">${c.precioSemana?"$"+c.precioSemana:"—"}</div>
-          <div class="text-[10px] font-bold uppercase tracking-wider mt-0.5" style="color:var(--adm-muted)">por semana</div>
+        <div class="flex-1 bg-slate-800 rounded-lg py-2">
+          <div class="text-blue-400 font-black">${c.precioSemana?"$"+c.precioSemana:"—"}</div>
+          <div class="text-slate-500 text-[10px]">por semana</div>
         </div>
       </div>
-      <div class="flex items-center gap-2 text-xs" style="color:var(--adm-muted)">
-        <i data-lucide="car" class="w-3.5 h-3.5"></i>
-        ${vehicles.filter(v=>v.categoria===c.nombre).length} vehículo(s)
-      </div>
+      <div class="text-slate-400 text-xs">${vehicles.filter(v=>v.categoria===c.nombre).length} vehículo(s)</div>
     </div>`).join("");
 
-  // ── RESERVATIONS TABLE (desktop) ──
+  // Tabla reservaciones
   document.getElementById("reservations-table").innerHTML = reservations.length
     ? reservations.map(r => {
       const f = r.fecha?.toDate ? r.fecha.toDate() : new Date(r.fecha||Date.now());
       return `<tr>
-        <td class="text-xs whitespace-nowrap" style="color:var(--adm-muted)">
-          ${f.toLocaleString("es-SV",{dateStyle:"short",timeStyle:"short"})}
-        </td>
-        <td class="font-bold text-sm" style="color:var(--adm-text)">${r.nombre}</td>
-        <td class="text-sm" style="color:var(--adm-muted)">${r.telefono}</td>
-        <td class="text-sm" style="color:var(--adm-muted)">${r.tipo}</td>
-        <td><span class="badge badge-yellow">${r.dias} día${r.dias!=1?"s":""}</span></td>
+        <td class="text-slate-400 text-xs whitespace-nowrap">${f.toLocaleString("es-SV",{dateStyle:"short",timeStyle:"short"})}</td>
+        <td class="font-semibold text-white text-sm">${r.nombre}</td>
+        <td class="text-slate-300 text-sm hidden sm:table-cell">${r.telefono}</td>
+        <td class="text-slate-300 text-sm hidden md:table-cell">${r.tipo}</td>
+        <td class="font-bold text-yellow-400">${r.dias}</td>
         <td>
-          <a href="https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(`Hola ${r.nombre}, confirmamos tu reserva.`)}"
-            target="_blank" class="btn-icon" style="background:rgba(34,197,94,.12);color:#4ade80;width:36px;height:36px">
+          <a href="https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(`Hola ${r.nombre}, confirmamos tu reserva.`)}" target="_blank" class="text-green-400 hover:text-green-300">
             <i data-lucide="message-circle" class="w-4 h-4"></i>
           </a>
         </td>
-      </tr>`;
-    }).join("")
-    : `<tr><td colspan="6" class="text-center py-16" style="color:var(--adm-muted)">No hay reservaciones aún.</td></tr>`;
-
-  // ── RESERVATIONS CARDS (mobile) ──
-  const rc = document.getElementById("reserv-cards");
-  if (rc) {
-    rc.innerHTML = reservations.length
-      ? reservations.map(r => {
-        const f = r.fecha?.toDate ? r.fecha.toDate() : new Date(r.fecha||Date.now());
-        return `<div class="admin-card flex flex-col gap-3">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <p class="font-black text-sm" style="color:var(--adm-text)">${r.nombre}</p>
-              <p class="text-xs mt-0.5" style="color:var(--adm-muted)">${r.telefono}</p>
-            </div>
-            <span class="badge badge-yellow">${r.dias} día${r.dias!=1?"s":""}</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 text-xs" style="color:var(--adm-muted)">
-            <div class="flex items-center gap-1.5">
-              <i data-lucide="tag" class="w-3 h-3"></i>${r.tipo||"—"}
-            </div>
-            <div class="flex items-center gap-1.5">
-              <i data-lucide="clock" class="w-3 h-3"></i>${f.toLocaleDateString("es-SV")}
-            </div>
-          </div>
-          <a href="https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(`Hola ${r.nombre}, confirmamos tu reserva.`)}"
-            target="_blank"
-            class="flex items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-bold transition-colors"
-            style="background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2)">
-            <i data-lucide="message-circle" class="w-4 h-4"></i> Confirmar por WhatsApp
-          </a>
-        </div>`;
-      }).join("")
-      : `<div class="text-center py-16" style="color:var(--adm-muted)">No hay reservaciones aún.</div>`;
-  }
+      </tr>`;}).join("")
+    : `<tr><td colspan="6" class="text-center text-slate-500 py-12">No hay reservaciones aún.</td></tr>`;
 
   lucide.createIcons();
 }
@@ -1866,13 +1202,12 @@ window.toggleSidebar = function() {
   const sb = document.getElementById("admin-sidebar");
   const ov = document.getElementById("sidebar-overlay");
   const open = sb.classList.toggle("open");
-  ov.classList.toggle("open", open);
+  ov.classList.toggle("hidden", !open);
 };
-
 function closeSidebarMobile() {
   if (window.innerWidth < 768) {
     document.getElementById("admin-sidebar")?.classList.remove("open");
-    document.getElementById("sidebar-overlay")?.classList.remove("open");
+    document.getElementById("sidebar-overlay")?.classList.add("hidden");
   }
 }
 
@@ -1921,8 +1256,6 @@ function showAdminPanel(user) {
   document.getElementById("admin-panel").classList.add("open");
   const lbl = document.getElementById("admin-email-label");
   if (lbl && user) lbl.textContent = user.email;
-  const se = document.getElementById("sidebar-email");
-  if (se && user) se.textContent = user.email;
   seedDataIfEmpty();
   refreshAdminData();
   lucide.createIcons();
@@ -2023,8 +1356,7 @@ window.toggleAvail = async function(id, el) {
   const nuevo = !v.disponible;
   await updateDoc(doc(db,"autos",id), {disponible:nuevo});
   el.classList.toggle("on", nuevo);
-  const lbl = el.nextElementSibling;
-  if (lbl) lbl.textContent = nuevo ? "Disponible" : "Rentado";
+  el.nextElementSibling.textContent = nuevo ? "Disponible" : "Rentado";
 };
 
 /* ══════════════════════════════════════════════════
@@ -2128,7 +1460,7 @@ window.uploadImg = async function(input) {
     showToast(`✅ ${urls.length} imagen(es) subida(s)`);
   } catch {
     const e = document.getElementById("img-error");
-    e.textContent = "❌ Error al subir. Verifica tu Upload Preset en Cloudinary.";
+    e.textContent = "❌ Error al subir. Verifica que tu Upload Preset sea 'unsigned' en Cloudinary.";
     e.classList.remove("hidden");
   } finally {
     document.getElementById("upload-loading").classList.add("hidden");
@@ -2260,8 +1592,15 @@ window.addEventListener("scroll",()=>{
 });
 document.getElementById("hamburger").addEventListener("click",()=>{
   document.getElementById("mobile-menu").classList.toggle("open");
+  document.getElementById("menu-overlay").classList.toggle("open");
+  // prevent body scroll when menu open
+  document.body.style.overflow = document.getElementById("mobile-menu").classList.contains("open") ? "hidden" : "";
 });
-window.closeMenu = ()=>document.getElementById("mobile-menu").classList.remove("open");
+window.closeMenu = ()=>{
+  document.getElementById("mobile-menu").classList.remove("open");
+  document.getElementById("menu-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+};
 
 const obs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{ if(e.isIntersecting){e.target.classList.add("visible");obs.unobserve(e.target);}});
