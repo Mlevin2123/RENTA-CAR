@@ -57,28 +57,44 @@
     .s-dot.active{background:#004A99}
 
     /* ── ADMIN OVERLAY ── */
+    /*
+      FIX SCROLL MÓVIL:
+      - El overlay es position:fixed;inset:0 → tiene 100vh de alto garantizado.
+      - Usamos display:flex;flex-direction:column para encadenar la altura.
+      - overflow:hidden solo en el overlay exterior para evitar double-scrollbar.
+      - Todos los hijos usan min-height:0 (regla crítica de flex para que
+        overflow-y:auto funcione en iOS/Android).
+      - -webkit-overflow-scrolling:touch habilita scroll con inercia en iOS.
+    */
     #admin-overlay{display:none;position:fixed;inset:0;z-index:1000;background:#0f172a;overflow:hidden}
     #admin-overlay.open{display:flex;flex-direction:column}
-    #login-screen{display:flex;align-items:center;justify-content:center;flex:1}
-    #admin-panel{display:none;flex:1;overflow:hidden}
-    #admin-panel.open{display:flex;flex-direction:column;height:100%}
+    #login-screen{display:flex;align-items:center;justify-content:center;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    #admin-panel{display:none;flex:1;min-height:0}
+    #admin-panel.open{display:flex;flex-direction:column;min-height:0}
 
-    /* Admin top bar */
-    .admin-topbar{background:#0b1426;border-bottom:1px solid #1e293b;padding:.75rem 1rem;display:flex;align-items:center;justify-between;gap:.75rem;flex-shrink:0}
+    /* Admin top bar — no crece, siempre visible */
+    .admin-topbar{background:#0b1426;border-bottom:1px solid #1e293b;padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-shrink:0}
 
-    /* Admin layout */
-    .admin-body{display:flex;flex:1;overflow:hidden}
+    /* Admin layout — min-height:0 es CLAVE para que flex children puedan scroll */
+    .admin-body{display:flex;flex:1;min-height:0;position:relative}
 
     /* Sidebar */
-    #admin-sidebar{background:#0b1426;border-right:1px solid #1e293b;width:230px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;transition:transform .3s;z-index:20}
+    #admin-sidebar{background:#0b1426;border-right:1px solid #1e293b;width:230px;flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;transition:transform .3s;z-index:20}
     @media(max-width:767px){
-      #admin-sidebar{position:absolute;top:0;bottom:0;left:0;transform:translateX(-100%)}
+      #admin-sidebar{position:absolute;top:0;bottom:0;left:0;width:240px;transform:translateX(-100%);box-shadow:4px 0 20px rgba(0,0,0,.5)}
       #admin-sidebar.open{transform:translateX(0)}
       .admin-topbar{justify-content:space-between}
     }
 
-    /* Admin content area */
-    #admin-content{flex:1;overflow-y:auto;background:#0f172a}
+    /* Admin content — flex:1 + min-height:0 + overflow-y:auto = scroll garantizado */
+    #admin-content{
+      flex:1;
+      min-height:0;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      background:#0f172a;
+    }
 
     .admin-nav-link{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:.75rem;color:#94a3b8;font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s}
     .admin-nav-link:hover{background:rgba(255,255,255,.05);color:#fff}
@@ -496,9 +512,9 @@
     </div>
 
     <!-- BODY -->
-    <div class="admin-body relative">
-      <!-- Overlay para cerrar sidebar en móvil -->
-      <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/50 z-10 md:hidden"></div>
+    <div class="admin-body">
+      <!-- Overlay semitransparente que cierra el sidebar en móvil -->
+      <div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/60 z-10 md:hidden"></div>
 
       <!-- SIDEBAR -->
       <aside id="admin-sidebar">
@@ -1504,7 +1520,7 @@ document.querySelectorAll(".fade-in").forEach(el=>obs.observe(el));
 
 renderTestimonials();
 lucide.createIcons();
-
 </script>
 </body>
 </html>
+
